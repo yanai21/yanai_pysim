@@ -3,12 +3,15 @@
 def main():
     
     class Job():
-        def __init__(self, id, pred_etime, nodes, etime,memory):
+        def __init__(self, id, pred_etime, nodes, etime,memory,startTime,endTime,runNode):
             self.id = id
             self.pred_etime = pred_etime
             self.nodes = nodes
             self.etime = etime
             self.memory = memory
+            self.startTime = startTime
+            self.endTime = endTime
+            self.runNode = runNode
 
     machine_id = 0
     NUM_NODES = 4
@@ -17,10 +20,11 @@ def main():
     event = {} #[node番号管理]
     #ジョブ作成
     for i in range(3):
-        job_tmp = Job(i, 3, i+1, 3,i)
+        job_tmp = Job(i, 3, i+1, 3,i,0,0,[])
         job_queue.append(job_tmp)
     now = 0
     empty_node = [i for i in range(NUM_NODES)]
+    result=[]
 
 
     def JobAssignment(event,Nodes,empty_node,job_queue):
@@ -41,11 +45,15 @@ def main():
                 for i in range(use_nodes):
                     arrange_node_idx = empty_node.pop(0)
                     Nodes[arrange_node_idx].append(job)
+                    #実行中のノードを書き込み
+                    job.runNode.append(arrange_node_idx)
+                    #start時刻の書き込み
+                    job.startTime=now
             
                 try:
-                    event[finish_time].append(job_id)
+                    event[finish_time].append(job)
                 except:
-                    event[finish_time] = [job_id]
+                    event[finish_time] = [job]
 
                 remove_idx.append(idx)
         
@@ -62,17 +70,23 @@ def main():
 
 
     while len(event) != 0:
+        #結果確認用
         print(event)
         print(Nodes)
         print(empty_node)
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
         finish_jobs=event.pop(now)
-        for finishJob_id in finish_jobs:
+        for finishJob in finish_jobs:
+            #終了時刻記入
+            finishJob.endTime=now
+            #結果書き込み
+            result.append([finishJob.id,finishJob.startTime,finishJob.endTime,finishJob.runNode])
+
             #Nodesから取り除く
             for idx, node in enumerate(Nodes):
                 try:
-                    if(finishJob_id==node[0].id):
+                    if(finishJob.id==node[0].id):
                         Nodes[idx]=[]
                         empty_node.append(idx)
                 except:
@@ -87,7 +101,7 @@ def main():
 
     #     #配置関数
 
-    # #結果出力
+    print(result)
 
 if __name__ == "__main__":
     main()
