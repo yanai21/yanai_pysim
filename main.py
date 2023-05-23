@@ -2,8 +2,9 @@
 
 def main():
     
-    class Job():
-        def __init__(self, id, pred_etime, nodes, etime,memory,startTime,endTime,runNode):
+    class NormalJob():
+        def __init__(self,id, pred_etime, nodes, etime,memory,startTime,endTime,runNode):
+            self.type = "normal"
             self.id = id
             self.pred_etime = pred_etime
             self.nodes = nodes
@@ -12,16 +13,39 @@ def main():
             self.startTime = startTime
             self.endTime = endTime
             self.runNode = runNode
+    class UrgentJob():
+        def __init__(self, id, pred_etime, nodes, etime,memory,occurrenceTime,deadlineTime,startTime,endTime,runNode):
+            self.type = "urgent"
+            self.id = id
+            self.pred_etime = pred_etime
+            self.nodes = nodes
+            self.etime = etime
+            self.memory = memory
+            self.occurrenceTime = occurrenceTime
+            self.deadlineTime = deadlineTime
+            self.startTime = startTime
+            self.endTime = endTime
+            self.runNode = runNode
 
     machine_id = 0
     NUM_NODES = 4
     Nodes = [[] for _ in range(NUM_NODES)]
-    job_queue = []
+    normalJob_queue = []
+    urgentJob_queue = []
     event = {} #[node番号管理]
-    #ジョブ作成
+    #通常ジョブ作成
     for i in range(3):
-        job_tmp = Job(i, 3, i+1, 3,i,0,0,[])
-        job_queue.append(job_tmp)
+        job_tmp = NormalJob(i+1, 3, i+1, 3,i,0,0,[])
+        normalJob_queue.append(job_tmp)
+    #緊急ジョブ作成
+    for i in range(1):
+        job_tmp = UrgentJob(-(i+1), 3, 4, 3,i,3,10,0,0,[])
+        urgentJob_queue.append(job_tmp) 
+        #緊急ジョブの発生時刻をeventに追加
+        try:
+            event[job_tmp.occurrenceTime].append(job_tmp)
+        except:
+            event[job_tmp.occurrenceTime] = [job_tmp]
     now = 0
     empty_node = [i for i in range(NUM_NODES)]
     result=[]
@@ -30,9 +54,7 @@ def main():
     def JobAssignment(event,Nodes,empty_node,job_queue):
         remove_idx = []
         for idx, job in enumerate(job_queue):
-            job_id = job.id
             use_nodes = job.nodes
-            # pred_etime = job.pred_etime
             etime = job.etime
             finish_time = now + etime
 
@@ -64,9 +86,8 @@ def main():
         event = dict((x, y) for x, y in event)
         return event,Nodes,empty_node,job_queue
 
-    JobAssignment(event,Nodes,empty_node,job_queue)
-
-
+    JobAssignment(event,Nodes,empty_node,normalJob_queue)
+    print(event)
 
 
     while len(event) != 0:
@@ -76,30 +97,27 @@ def main():
         print(empty_node)
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
-        finish_jobs=event.pop(now)
-        for finishJob in finish_jobs:
-            #終了時刻記入
-            finishJob.endTime=now
-            #結果書き込み
-            result.append([finishJob.id,finishJob.startTime,finishJob.endTime,finishJob.runNode])
-
-            #Nodesから取り除く
-            for idx, node in enumerate(Nodes):
-                try:
-                    if(finishJob.id==node[0].id):
-                        Nodes[idx]=[]
-                        empty_node.append(idx)
-                except:
-                    pass
+        eventJobs=event.pop(now)
+        for eventJob in reversed(eventJobs):
+            #緊急ジョブの投入かどうかを判断
+            if(eventJob.type=="urgent" and eventJob.startTime==0):
+                empty_node = sorted(empty_node)
+                JobAssignment(event,Nodes,empty_node,urgentJob_queue)
+            else:
+                #終了時刻記入
+                eventJob.endTime=now
+                #結果書き込み
+                result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode])
+                #Nodesから取り除く
+                for idx, node in enumerate(Nodes):
+                    try:
+                        if(eventJob.id==node[0].id):
+                            Nodes[idx]=[]
+                            empty_node.append(idx)
+                    except:
+                        pass
         empty_node = sorted(empty_node)
-        JobAssignment(event,Nodes,empty_node,job_queue)
-    #     #node情報を書き込むout.csv
-    #     array_tmp = []
-    #     for node in Nodes:
-    #         array_tmp.append(node[0].id)
-    #     #dfに追加
-
-    #     #配置関数
+        JobAssignment(event,Nodes,empty_node,normalJob_queue)
 
     print(result)
 
