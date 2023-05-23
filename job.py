@@ -1,21 +1,24 @@
-from random import randint
-class NormalJob:
-    def __init__(self,idstart,jobNum,excutionTimeMin,excutionTimeMax,nodeMin,nodeMax,memoryMin,memoryMax):
-        self.idstart=idstart
-        self.jobNum=jobNum
-        self.excutionTimeMin=excutionTimeMin
-        self.excutionTimeMax=excutionTimeMax
-        self.nodeMin=nodeMin
-        self.nodeMax=nodeMax
-        self.memoryMin=memoryMin
-        self.memoryMax=memoryMax
-    def DataCreate(self):
-        normalJobQueue=[]
-        for i in range(self.jobNum):
-            excutionTime=randint(self.excutionTimeMin,self.excutionTimeMax)
-            node=randint(self.nodeMin,self.nodeMax)
-            memory=randint(self.memoryMin,self.memoryMax)
-            normalJobQueue.append([self.idstart+i,excutionTime,node,memory])
-        return normalJobQueue
-class UrgentJob:
-    pass
+class NormalJob():
+    def __init__(self,id,nodes, etime,memory):
+        self.type = "normal"
+        self.leftEtime = 0
+        self.eEndTime = 0
+        self.id = id
+        self.nodes = nodes
+        self.etime = etime
+        self.memory = memory
+        self.startTime = 0
+        self.endTime = 0
+        self.runNode = []
+class UrgentJob():
+    def __init__(self, id,nodes, etime,memory,occurrenceTime,deadlineTime):
+        self.type = "urgent"
+        self.id = id
+        self.nodes = nodes
+        self.etime = etime
+        self.memory = memory
+        self.occurrenceTime = occurrenceTime
+        self.deadlineTime = deadlineTime
+        self.startTime = 0
+        self.endTime = 0
+        self.runNode = []
