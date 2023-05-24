@@ -1,9 +1,13 @@
 from job import NormalJob,UrgentJob
 from basicFunction import JobPlacement,FinishJob
-
+from model import PreemptionOverhead
 
 def main():
+    #システム情報
     machine_id = 0
+    writeBandwidth = 100
+    readBandwidth = 50
+
     NUM_NODES = 4
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = []
@@ -12,12 +16,12 @@ def main():
     #通常ジョブ作成
     for i in range(3):
         #id,nodes, etime,memory
-        job_tmp = NormalJob(i+1,i+1, 3,i)
+        job_tmp = NormalJob(i+1,i+1, 3,100)
         normalJob_queue.append(job_tmp)
     #緊急ジョブ作成
     for i in range(1):
         #id,nodes, etime,memory,occurrenceTime,deadlineTime
-        job_tmp = UrgentJob(-(i+1), 2, 3,i,1,10)
+        job_tmp = UrgentJob(-(i+1), 2, 3,i,2,10)
         urgentJob_queue.append(job_tmp) 
         #緊急ジョブの発生時刻をeventに追加
         try:
@@ -34,8 +38,6 @@ def main():
         remove_idx = []
         for idx, job in enumerate(job_queue):
             use_nodes = job.nodes
-            etime = job.etime
-            finish_time = now + etime
 
             #ノードが空いているかの確認
             available_num_node = len(empty_node)
@@ -43,7 +45,7 @@ def main():
                 break
             #空いてるノードに配置
             if available_num_node >= use_nodes:
-                empty_node,job,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,job,event,Nodes,popNum=0,)
+                empty_node,job,event,Nodes=JobPlacement(now,use_nodes,empty_node,job,event,Nodes,popNum=0)
                 remove_idx.append(idx)
         #ジョブキューから配置したジョブを削除
         for idx in reversed(remove_idx):
@@ -54,14 +56,12 @@ def main():
 
         return event,Nodes,empty_node,job_queue
 
-    def UrgentJobAssignment(event,Nodes,empty_node,urgentJob,preemptionJobs):
+    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs):
         #ノードの確認
         available_num_node = len(empty_node)
         use_nodes = urgentJob.nodes
-        etime = urgentJob.etime
-        finish_time = now + etime
         if available_num_node >= use_nodes:
-            empty_node,urgentJob,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
+            empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
         else:
             #Prremption
             urgentJob.type = "urgent_p"
@@ -76,12 +76,16 @@ def main():
                 event[preemptionJob.eEndTime] = event_tmp
                 #中断した結果、空いたノードの把握
                 preemptionNode.extend(preemptionJob.runNode)
+                #中断に要する時間を計測
+                urgentJob.totalPreemptionMemory += preemptionJob.memory
             #Nodesから取り除く
             for idx in reversed(preemptionNode):
                 Nodes[idx]=[]
                 empty_node.append(idx)
             #緊急ジョブを割り当て (中断したジョブのノード数で実行するために、後ろから配列を参照する)
-            empty_node,urgentJob,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
+            # nowに中断時間を加える
+            now += PreemptionOverhead(urgentJob.totalPreemptionMemory,writeBandwidth)
+            empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
         return event,Nodes,empty_node,preemptionJobs
@@ -103,16 +107,18 @@ def main():
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)
-                event,Nodes,empty_node,preemptionJobs=UrgentJobAssignment(event,Nodes,empty_node,eventJob,preemptionJobs)
+                event,Nodes,empty_node,preemptionJobs=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs)
             elif(eventJob.type=="urgent_p"):
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)    
+                #復帰時間
+                recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory,readBandwidth)
                 #中断ジョブを復帰
                 for preemptionJob in preemptionJobs:
                     for idx in preemptionJob.runNode:
                         Nodes[idx]=[preemptionJob]
                         empty_node.remove(idx)
-                    finish_time = now + preemptionJob.leftEtime
+                    finish_time = now + recover_time + preemptionJob.leftEtime
                     try:
                         event[finish_time].append(preemptionJob)
                     except:

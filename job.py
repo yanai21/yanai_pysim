@@ -22,3 +22,4 @@ class UrgentJob():
         self.startTime = 0
         self.endTime = 0
         self.runNode = []
+        self.totalPreemptionMemory=0

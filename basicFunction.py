@@ -1,5 +1,7 @@
 #配置関数
-def JobPlacement(now,finish_time,use_nodes,empty_node,job,event,Nodes,popNum):
+def JobPlacement(now,use_nodes,empty_node,job,event,Nodes,popNum):
+    etime = job.etime
+    finish_time = now + etime
     for i in range(use_nodes):
         arrange_node_idx = empty_node.pop(popNum)
         Nodes[arrange_node_idx].append(job)
