@@ -1,4 +1,6 @@
 from job import NormalJob,UrgentJob
+from basicFunction import JobPlacement,FinishJob
+
 
 def main():
     machine_id = 0
@@ -35,34 +37,23 @@ def main():
             etime = job.etime
             finish_time = now + etime
 
-            #空いてるノードに配置
+            #ノードが空いているかの確認
             available_num_node = len(empty_node)
             if available_num_node == 0:
                 break
-
+            #空いてるノードに配置
             if available_num_node >= use_nodes:
-                for i in range(use_nodes):
-                    arrange_node_idx = empty_node.pop(0)
-                    Nodes[arrange_node_idx].append(job)
-                    #実行中のノードを書き込み
-                    job.runNode.append(arrange_node_idx)
-                    #start時刻の書き込み
-                    job.startTime=now
-                    job.eEndTime=finish_time
-            
-                try:
-                    event[finish_time].append(job)
-                except:
-                    event[finish_time] = [job]
-
+                empty_node,job,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,job,event,Nodes,popNum=0,)
                 remove_idx.append(idx)
-        
+        #ジョブキューから配置したジョブを削除
         for idx in reversed(remove_idx):
             job_queue.pop(idx)
         
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
+
         return event,Nodes,empty_node,job_queue
+
     def UrgentJobAssignment(event,Nodes,empty_node,urgentJob,preemptionJobs):
         #ノードの確認
         available_num_node = len(empty_node)
@@ -70,13 +61,7 @@ def main():
         etime = urgentJob.etime
         finish_time = now + etime
         if available_num_node >= use_nodes:
-            for i in range(use_nodes):
-                arrange_node_idx = empty_node.pop(0)
-                Nodes[arrange_node_idx].append(urgentJob)
-                #実行中のノードを書き込み
-                urgentJob.runNode.append(arrange_node_idx)
-                #start時刻の書き込み
-                urgentJob.startTime=now
+            empty_node,urgentJob,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
         else:
             #Prremption
             urgentJob.type = "urgent_p"
@@ -95,23 +80,16 @@ def main():
             for idx in reversed(preemptionNode):
                 Nodes[idx]=[]
                 empty_node.append(idx)
-            #緊急ジョブを割り当て
-            for i in range(use_nodes):
-                arrange_node_idx = empty_node.pop(-1)
-                Nodes[arrange_node_idx].append(urgentJob)
-                #実行中のノードを書き込み
-                urgentJob.runNode.append(arrange_node_idx)
-                #start時刻の書き込み
-                urgentJob.startTime=now
-        try:
-            event[finish_time].append(urgentJob)
-        except:
-            event[finish_time] = [urgentJob]
+            #緊急ジョブを割り当て (中断したジョブのノード数で実行するために、後ろから配列を参照する)
+            empty_node,urgentJob,event,Nodes=JobPlacement(now,finish_time,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
         return event,Nodes,empty_node,preemptionJobs
 
+    
+
     event,Nodes,empty_node,normalJob_queue=NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
+
 
     while len(event) != 0:
         #結果確認用
@@ -127,18 +105,8 @@ def main():
                 empty_node = sorted(empty_node)
                 event,Nodes,empty_node,preemptionJobs=UrgentJobAssignment(event,Nodes,empty_node,eventJob,preemptionJobs)
             elif(eventJob.type=="urgent_p"):
-                #終了時刻記入
-                eventJob.endTime=now
-                #結果書き込み
-                result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode])
-                #Nodesから取り除く
-                for idx, node in enumerate(Nodes):
-                    try:
-                        if(eventJob.id==node[0].id):
-                            Nodes[idx]=[]
-                            empty_node.append(idx)
-                    except:
-                        pass          
+                #結果書き込み、Nodesから排除
+                eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)    
                 #中断ジョブを復帰
                 for preemptionJob in preemptionJobs:
                     for idx in preemptionJob.runNode:
@@ -153,18 +121,8 @@ def main():
                     event = dict((x, y) for x, y in event)
                 preemptionJobs=[]
             else:
-                #終了時刻記入
-                eventJob.endTime=now
-                #結果書き込み
-                result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode])
-                #Nodesから取り除く
-                for idx, node in enumerate(Nodes):
-                    try:
-                        if(eventJob.id==node[0].id):
-                            Nodes[idx]=[]
-                            empty_node.append(idx)
-                    except:
-                        pass      
+                #結果書き込み、Nodesから排除
+                eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         event,Nodes,empty_node,normalJob_queue=NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
                     
