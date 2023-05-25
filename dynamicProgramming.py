@@ -1,19 +1,4 @@
 import copy
-from job import NormalJob
-#テスト用のデータ生成
-DataList=[]
-NUM_Nodes=0
-NUM_Jobs=10
-for i in range(NUM_Jobs):
-    #id,nodes, etime,memory
-    job_tmp = NormalJob(i+1,i+1, 3,10)
-    NUM_Nodes+=job_tmp.nodes
-    DataList.append(job_tmp)
-
-# print(DataList)
-# print(NUM_Nodes)
-
-
 
 #DPの計算
 def DP(N,W,DataList):
@@ -67,9 +52,20 @@ def DP(N,W,DataList):
                     dp,BreakDP=OnlyCopy(dp,i,j,BreakDP)
     return dp,BreakDP
 
-dp,breakdp=DP(NUM_Jobs,NUM_Nodes,DataList)
-print(dp)
-print(breakdp)
+# #テスト用のデータ生成
+# from job import NormalJob
+# DataList=[]
+# NUM_Nodes=0
+# NUM_Jobs=10
+# for i in range(NUM_Jobs):
+#     #id,nodes, etime,memory
+#     job_tmp = NormalJob(i+1,i+1, 3,10)
+#     NUM_Nodes+=job_tmp.nodes
+#     DataList.append(job_tmp)
+
+# dp,breakdp=DP(NUM_Jobs,NUM_Nodes,DataList)
+# print(dp)
+# print(breakdp)
 
 
 
