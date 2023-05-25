@@ -10,6 +10,7 @@ class NormalJob():
         self.startTime = 0
         self.endTime = 0
         self.runNode = []
+        self.status = "wait"
 class UrgentJob():
     def __init__(self, id,nodes, etime,memory,occurrenceTime,deadlineTime):
         self.type = "urgent"
