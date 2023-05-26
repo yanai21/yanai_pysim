@@ -1,20 +1,15 @@
 from job import NormalJob,UrgentJob
 from basicFunction import JobPlacement,FinishJob
-from model import PreemptionOverhead
-from dynamicProgramming import DP
+from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover
 
 
 
 def main():
-    #システム情報
-    machine_id = 0
-    writeBandwidth = 100
-    readBandwidth = 50
-
     NUM_NODES = 4
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = []
     urgentJob_queue = []
+    preemptionJobs=[]
     event = {} #[node番号管理]
     #通常ジョブ作成
     for i in range(4):
@@ -58,60 +53,18 @@ def main():
         event = dict((x, y) for x, y in event)
 
         return event,Nodes,empty_node,job_queue
-
+    #緊急ジョブの割り当て
     def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs):
         #ノードの確認
         available_num_node = len(empty_node)
         use_nodes = urgentJob.nodes
+        #Idleノードに割り当て
         if available_num_node >= use_nodes:
             empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
-        #Preemption
+        #Idleノードに割り当てられない時
         else:
-            urgentJob.type = "urgent_p"
-            #Nodesから投入されているジョブリストを作成
-            jobSet = set()
-            for job in Nodes:
-                try:
-                    jobSet.add(job[0])
-                except:
-                    pass
-            jobList = list(jobSet)
-            #DPの実行
-            dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
-            #中断するジョブを選ぶ
-            #ほしいノード数があるかの確認
-            if(dp[-1][urgentJob.nodes - available_num_node]!=0):
-                preemptionJobs=breakdp[-1][urgentJob.nodes - available_num_node]
-            else:
-                #最小のノード数を探索
-                for i in range(urgentJob.nodes - available_num_node,NUM_NODES+1):
-                    if(dp[-1][i]!=0):
-                        preemptionJobs=breakdp[-1][i]
-                        break
-                    if(i==NUM_NODES):
-                        print("中断できない")
-                        exit()
-            #中断開始
-            preemptionNode=[]
-            for preemptionJob in preemptionJobs:
-                #残り時間の計測
-                preemptionJob.leftEtime = preemptionJob.etime - now
-                #中断ジョブをeventから削除
-                event_tmp = event[preemptionJob.eEndTime]
-                event_tmp.remove(preemptionJob)
-                event[preemptionJob.eEndTime] = event_tmp
-                #中断した結果、空いたノードの把握
-                preemptionNode.extend(preemptionJob.runNode)
-                #中断に要する時間を計測
-                urgentJob.totalPreemptionMemory += preemptionJob.memory
-            #Nodesから取り除く
-            for idx in reversed(preemptionNode):
-                Nodes[idx]=[]
-                empty_node.append(idx)
-            #緊急ジョブを割り当て (中断したジョブのノード数で実行するために、後ろから配列を参照する)
-            # nowに中断時間を加える
-            now += PreemptionOverhead(urgentJob.totalPreemptionMemory,writeBandwidth)
-            empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
+            #Preemption
+            empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node)
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
         return event,Nodes,empty_node,preemptionJobs
@@ -137,24 +90,8 @@ def main():
             elif(eventJob.type=="urgent_p"):
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)    
-                #復帰時間
-                recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory,readBandwidth)
-                #中断ジョブを復帰
-                for preemptionJob in preemptionJobs:
-                    for idx in preemptionJob.runNode:
-                        Nodes[idx]=[preemptionJob]
-                        try:
-                            empty_node.remove(idx)
-                        except:
-                            pass
-                    finish_time = now + recover_time + preemptionJob.leftEtime
-                    try:
-                        event[finish_time].append(preemptionJob)
-                    except:
-                        event[finish_time] = [preemptionJob]
-                    event = sorted(event.items())
-                    event = dict((x, y) for x, y in event)
-                preemptionJobs=[]
+                #復帰
+                eventJob,Nodes,empty_node,preemptionJobs,event = PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event)
             else:
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)   
