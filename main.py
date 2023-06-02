@@ -3,6 +3,7 @@ from basicFunction import JobPlacement,FinishJob
 from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover
 from system import nodeStartTime
 from nodeStartAlgorithm import NodeStart,NodeShutdown
+from killAlgorithm import KillAlgorithm
 
 def main():
     NUM_NODES = 4
@@ -11,17 +12,18 @@ def main():
     normalJob_queue = []
     urgentJob_queue = []
     preemptionJobs=[]
+    killJobs = []
     startNodes=[]
     event = {} #[node番号管理]
     #通常ジョブ作成
     for i in range(5):
         #id,nodes, etime,memory
-        job_tmp = NormalJob(i+1,1+i, 3,100)
+        job_tmp = NormalJob(i+1,2,i+1,100)
         normalJob_queue.append(job_tmp)
     #緊急ジョブ作成
     for i in range(1):
         #id,nodes, etime,memory,occurrenceTime,deadlineTime
-        job_tmp = UrgentJob(-(i+1), 3, 3,i,1,10)
+        job_tmp = UrgentJob(-(i+1), 3, 3,i,3,10)
         urgentJob_queue.append(job_tmp) 
         #緊急ジョブの発生時刻をeventに追加
         try:
@@ -56,7 +58,7 @@ def main():
 
         return event,Nodes,empty_node,job_queue
     #緊急ジョブの割り当て
-    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs):
+    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue):
         #ノードの確認
         available_num_node = len(empty_node)
         use_nodes = urgentJob.nodes
@@ -67,11 +69,14 @@ def main():
         else:
             # #Preemption
             # empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node)
-            #NodeStart
-            startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            # #NodeStart
+            # startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            #Kill
+            empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
+
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
-        return event,Nodes,empty_node,preemptionJobs,startNodes
+        return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue
 
     
 
@@ -90,7 +95,7 @@ def main():
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)
-                event,Nodes,empty_node,preemptionJobs,startNodes=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs)
+                event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs,normalJob_queue)
             elif(eventJob.type=="urgent_p"):
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)    
