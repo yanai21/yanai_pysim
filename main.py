@@ -1,35 +1,20 @@
-from job import NormalJob,UrgentJob
+import jobSet 
 from basicFunction import JobPlacement,FinishJob
 from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover
 from system import nodeStartTime
-from nodeStartAlgorithm import NodeStart,NodeShutdown
+from nodeStartAlgorithm import NodeStart,NodeShutdown,NodeStartList
 from killAlgorithm import KillAlgorithm
 
 def main():
     NUM_NODES = 4
     NUM_SLEEP_NODES = 2
     Nodes = [[] for _ in range(NUM_NODES)]
-    normalJob_queue = []
-    urgentJob_queue = []
+    normalJob_queue = jobSet.normalJob_queue
     preemptionJobs=[]
-    killJobs = []
     startNodes=[]
-    event = {} #[node番号管理]
-    #通常ジョブ作成
-    for i in range(5):
-        #id,nodes, etime,memory
-        job_tmp = NormalJob(i+1,2,i+1,100)
-        normalJob_queue.append(job_tmp)
-    #緊急ジョブ作成
-    for i in range(1):
-        #id,nodes, etime,memory,occurrenceTime,deadlineTime
-        job_tmp = UrgentJob(-(i+1), 3, 3,i,3,10)
-        urgentJob_queue.append(job_tmp) 
-        #緊急ジョブの発生時刻をeventに追加
-        try:
-            event[job_tmp.occurrenceTime].append(job_tmp)
-        except:
-            event[job_tmp.occurrenceTime] = [job_tmp]
+    normalJob_queue = jobSet.normalJob_queue
+    urgentJob_queue = jobSet.urgentJob_queue
+    event = jobSet.event
     now = 0
     empty_node = [i for i in range(NUM_NODES)]
     result=[]
@@ -67,12 +52,18 @@ def main():
             empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
         #Idleノードに割り当てられない時
         else:
-            # #Preemption
-            # empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node)
+            #中断とノード起動のノード数を管理
+            NUM_NODES_Preemption = 0
+            NUM_NODES_NodeStart = 0
+            #ノード起動に要する時間のテーブル化
+            nodeStartTimeList = NodeStartList(NUM_SLEEP_NODES)
+            
+            #Preemption
+            empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node)
             # #NodeStart
             # startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
-            #Kill
-            empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
+            # #Kill
+            # empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
 
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)

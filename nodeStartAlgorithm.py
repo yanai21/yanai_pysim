@@ -1,5 +1,14 @@
 from system import nodeStartTime
 from basicFunction import JobPlacement,FinishJob
+from model import MultipleNodeStartup
+
+def NodeStartList(NUM_SLEEP_NODES):
+    nodeStartTimeList = []
+    for i in range(1,NUM_SLEEP_NODES+1):
+        startupTime = MultipleNodeStartup(i,MultipleNodeStartup=True)
+        nodeStartTimeList.append(startupTime)
+    return nodeStartTimeList
+
 
 def NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event):
     NUM_Start_NODES = use_nodes - available_num_node
