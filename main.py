@@ -1,12 +1,13 @@
 import jobSet 
 from basicFunction import JobPlacement,FinishJob
-from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover
-from system import nodeStartTime
+from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
+from system import nodeStartTime,writeBandwidth
 from nodeStartAlgorithm import NodeStart,NodeShutdown,NodeStartList
 from killAlgorithm import KillAlgorithm
+from model import PreemptionOverhead
 
 def main():
-    NUM_NODES = 4
+    NUM_NODES = 3
     NUM_SLEEP_NODES = 2
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = jobSet.normalJob_queue
@@ -57,11 +58,41 @@ def main():
             NUM_NODES_NodeStart = 0
             #ノード起動に要する時間のテーブル化
             nodeStartTimeList = NodeStartList(NUM_SLEEP_NODES)
-            
-            #Preemption
-            empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node)
+            #中断に要するテーブルの作成
+            #Nodesから投入されているジョブリストを作成
+            jobSet = set()
+            for job in Nodes:
+                try:
+                    jobSet.add(job[0])
+                except:
+                    pass
+            jobList = list(jobSet)
+            dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
+            NUM_NEED_NODES = use_nodes - available_num_node
+            NUM_NODES_SUM = 0 
+            #ノードの割り当て方法を考える
+            while NUM_NODES_SUM < NUM_NEED_NODES:
+                NUM_NODES_SUM +=1
+                #中断の中身がない
+                #最小のノード数を探索
+                for i in range(NUM_NODES_SUM,NUM_NODES+1):
+                    if(dp[-1][i]!=0):
+                        PreemptionOverheadTime = PreemptionOverhead(dp[-1][i],writeBandwidth)
+                        break
+                #中断を選択
+                if(PreemptionOverheadTime <= nodeStartTimeList[NUM_NODES_NodeStart+1]):
+                    NUM_NODES_Preemption = i
+                #ノード起動を選択
+                else:
+                    NUM_NODES_NodeStart += 1
+                NUM_NODES_SUM = NUM_NODES_Preemption + NUM_NODES_NodeStart
+            print(NUM_NODES_Preemption)
+            print(NUM_NODES_NodeStart)
+            #TODO:ノード数指定で機能を実施すること
+            # #Preemption
+            # empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,dp,breakdp)
             # #NodeStart
-            # startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            # startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,NUM_Start_NODES,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
             # #Kill
             # empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
 
@@ -83,6 +114,7 @@ def main():
         now=next(iter(event))
         eventJobs=event.pop(now)
         for eventJob in reversed(eventJobs):
+            #TODO:eventJobが２つある場合を想定する必要がある
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)

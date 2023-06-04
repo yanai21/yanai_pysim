@@ -3,15 +3,14 @@ from basicFunction import JobPlacement,FinishJob
 from model import MultipleNodeStartup
 
 def NodeStartList(NUM_SLEEP_NODES):
-    nodeStartTimeList = []
+    nodeStartTimeList = [0]
     for i in range(1,NUM_SLEEP_NODES+1):
-        startupTime = MultipleNodeStartup(i,MultipleNodeStartup=True)
+        startupTime = MultipleNodeStartup(i,MultipleNodeStartup=False)
         nodeStartTimeList.append(startupTime)
     return nodeStartTimeList
 
 
-def NodeStart(use_nodes,available_num_node,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event):
-    NUM_Start_NODES = use_nodes - available_num_node
+def NodeStart(use_nodes,NUM_Start_NODES,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event):
     if(NUM_SLEEP_NODES >= NUM_Start_NODES):
         #node起動を用いたことを加える
         urgentJob.type = "urgent_nodestart"
