@@ -57,17 +57,17 @@ def DP(N,W,DataList):
 
 def PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,dp,breakdp):
         urgentJob.type = "urgent_p"
-        # #Nodesから投入されているジョブリストを作成
-        # jobSet = set()
-        # for job in Nodes:
-        #     try:
-        #         jobSet.add(job[0])
-        #     except:
-        #         pass
-        # jobList = list(jobSet)
-        # #DPの実行
-        # dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
-        #中断するジョブを選ぶ
+        #Nodesから投入されているジョブリストを作成
+        jobSet = set()
+        for job in Nodes:
+            try:
+                jobSet.add(job[0])
+            except:
+                pass
+        jobList = list(jobSet)
+        #DPの実行
+        dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
+        中断するジョブを選ぶ
         #ほしいノード数があるかの確認
         if(dp[-1][urgentJob.nodes - available_num_node]!=0):
             preemptionJobs=breakdp[-1][urgentJob.nodes - available_num_node]

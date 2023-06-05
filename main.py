@@ -2,13 +2,13 @@ import jobSet
 from basicFunction import JobPlacement,FinishJob
 from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
 from system import nodeStartTime,writeBandwidth
-from nodeStartAlgorithm import NodeStart,NodeShutdown,NodeStartList
+from nodeStartAlgorithm import NodeStart,NodeShutdown
 from killAlgorithm import KillAlgorithm
 from model import PreemptionOverhead
 
 def main():
     NUM_NODES = 3
-    NUM_SLEEP_NODES = 2
+    NUM_SLEEP_NODES = 3
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = jobSet.normalJob_queue
     preemptionJobs=[]
@@ -56,8 +56,8 @@ def main():
             #中断とノード起動のノード数を管理
             NUM_NODES_Preemption = 0
             NUM_NODES_NodeStart = 0
-            #ノード起動に要する時間のテーブル化
-            nodeStartTimeList = NodeStartList(NUM_SLEEP_NODES)
+            #中断もしくは起動に要する時間
+            overheadTime = 0
             #中断に要するテーブルの作成
             #Nodesから投入されているジョブリストを作成
             jobSet = set()
@@ -69,26 +69,22 @@ def main():
             jobList = list(jobSet)
             dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
             NUM_NEED_NODES = use_nodes - available_num_node
-            NUM_NODES_SUM = 0 
-            #ノードの割り当て方法を考える
-            while NUM_NODES_SUM < NUM_NEED_NODES:
-                NUM_NODES_SUM +=1
-                #中断の中身がない
-                #最小のノード数を探索
-                for i in range(NUM_NODES_SUM,NUM_NODES+1):
-                    if(dp[-1][i]!=0):
-                        PreemptionOverheadTime = PreemptionOverhead(dp[-1][i],writeBandwidth)
-                        break
-                #中断を選択
-                if(PreemptionOverheadTime <= nodeStartTimeList[NUM_NODES_NodeStart+1]):
-                    NUM_NODES_Preemption = i
-                #ノード起動を選択
+            for i in range(NUM_SLEEP_NODES+1):
+                if(i==0):
+                    for j in range(NUM_NEED_NODES,NUM_NODES+1):
+                        if(dp[-1][j]!=0):
+                            NUM_NODES_Preemption = j
+                            overheadTime = PreemptionOverhead(dp[-1][j],writeBandwidth)
+                            break
                 else:
-                    NUM_NODES_NodeStart += 1
-                NUM_NODES_SUM = NUM_NODES_Preemption + NUM_NODES_NodeStart
+                    tmpOverheadTime = max(nodeStartTime,PreemptionOverhead(dp[-1][NUM_NEED_NODES - i],writeBandwidth))
+                    if(tmpOverheadTime <overheadTime):
+                        overheadTime = tmpOverheadTime
+                        NUM_NODES_NodeStart = i
+                        NUM_NODES_Preemption = NUM_NEED_NODES - i
             print(NUM_NODES_Preemption)
             print(NUM_NODES_NodeStart)
-            #TODO:ノード数指定で機能を実施すること
+            #TODO:緊急ジョブは中断ジョブ選択で渡す
             # #Preemption
             # empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,dp,breakdp)
             # #NodeStart
