@@ -114,7 +114,7 @@ def main():
         now=next(iter(event))
         eventJobs=event.pop(now)
         for eventJob in reversed(eventJobs):
-            #TODO:eventJobが２つある場合を想定する必要がある
+            #TODO:eventJobの種類が２つある場合を想定する必要がある
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)
