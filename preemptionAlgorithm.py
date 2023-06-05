@@ -55,31 +55,8 @@ def DP(N,W,DataList):
                     dp,BreakDP=OnlyCopy(dp,i,j,BreakDP)
     return dp,BreakDP
 
-def PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,dp,breakdp):
-        urgentJob.type = "urgent_p"
-        #Nodesから投入されているジョブリストを作成
-        jobSet = set()
-        for job in Nodes:
-            try:
-                jobSet.add(job[0])
-            except:
-                pass
-        jobList = list(jobSet)
-        #DPの実行
-        dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
-        中断するジョブを選ぶ
-        #ほしいノード数があるかの確認
-        if(dp[-1][urgentJob.nodes - available_num_node]!=0):
-            preemptionJobs=breakdp[-1][urgentJob.nodes - available_num_node]
-        else:
-            #最小のノード数を探索
-            for i in range(urgentJob.nodes - available_num_node,NUM_NODES+1):
-                if(dp[-1][i]!=0):
-                    preemptionJobs=breakdp[-1][i]
-                    break
-                if(i==NUM_NODES):
-                    print("中断できない")
-                    exit()
+def PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs):
+        urgentJob.status.append("preemption")
         #中断開始
         preemptionNode=[]
         for preemptionJob in preemptionJobs:
@@ -97,10 +74,6 @@ def PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,n
         for idx in reversed(preemptionNode):
             Nodes[idx]=[]
             empty_node.append(idx)
-        #緊急ジョブを割り当て (中断したジョブのノード数で実行するために、後ろから配列を参照する)
-        # nowに中断時間を加える
-        now += PreemptionOverhead(urgentJob.totalPreemptionMemory,writeBandwidth)
-        empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
         return empty_node,urgentJob,event,Nodes,preemptionJobs
 
 def PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event):

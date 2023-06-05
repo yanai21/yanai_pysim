@@ -7,7 +7,7 @@ from killAlgorithm import KillAlgorithm
 from model import PreemptionOverhead
 
 def main():
-    NUM_NODES = 3
+    NUM_NODES = 4
     NUM_SLEEP_NODES = 3
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = jobSet.normalJob_queue
@@ -19,7 +19,6 @@ def main():
     now = 0
     empty_node = [i for i in range(NUM_NODES)]
     result=[]
-    preemptionJobs=[]
 
 
     def NormalJobAssignment(event,Nodes,empty_node,job_queue):
@@ -44,7 +43,7 @@ def main():
 
         return event,Nodes,empty_node,job_queue
     #緊急ジョブの割り当て
-    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue):
+    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes):
         #ノードの確認
         available_num_node = len(empty_node)
         use_nodes = urgentJob.nodes
@@ -68,7 +67,9 @@ def main():
                     pass
             jobList = list(jobSet)
             dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
+            #必要なノード数の把握
             NUM_NEED_NODES = use_nodes - available_num_node
+            #全探索
             for i in range(NUM_SLEEP_NODES+1):
                 if(i==0):
                     for j in range(NUM_NEED_NODES,NUM_NODES+1):
@@ -84,12 +85,17 @@ def main():
                         NUM_NODES_Preemption = NUM_NEED_NODES - i
             print(NUM_NODES_Preemption)
             print(NUM_NODES_NodeStart)
-            #TODO:緊急ジョブは中断ジョブ選択で渡す
-            # #Preemption
-            # empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,dp,breakdp)
-            # #NodeStart
-            # startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,NUM_Start_NODES,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
-            # #Kill
+            #Preemption
+            if(NUM_NODES_Preemption != 0):
+                preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
+                empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs)
+            #NodeStart
+            if(NUM_NODES_NodeStart !=0):
+                startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            #配置：JobPlacement
+            now += overheadTime
+            empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
+            #kill
             # empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
 
         event = sorted(event.items())
@@ -114,14 +120,16 @@ def main():
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)
-                event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs,normalJob_queue)
-            elif(eventJob.type=="urgent_p"):
+                event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs,normalJob_queue,startNodes)
+            elif(eventJob.type=="urgent" and len(eventJob.status) != 0):
                 #結果書き込み、Nodesから排除
-                eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)    
-                #復帰
-                eventJob,Nodes,empty_node,preemptionJobs,event = PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event)
-            elif(eventJob.type=="urgent_nodestart"):
-                eventJob,Nodes,empty_node,result,startNodes = NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes)
+                eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result) 
+                for status in eventJob.status:
+                    if(status == "preemption"):  
+                        #復帰
+                        eventJob,Nodes,empty_node,preemptionJobs,event = PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event)
+                    elif(status == "nodestart"):
+                        eventJob,Nodes,empty_node,result,startNodes = NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes) 
             else:
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)   

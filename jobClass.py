@@ -10,7 +10,7 @@ class NormalJob():
         self.startTime = 0
         self.endTime = 0
         self.runNode = []
-        self.status = "wait"
+        self.status = []
 class UrgentJob():
     def __init__(self, id,nodes, etime,memory,occurrenceTime,deadlineTime):
         self.type = "urgent"
@@ -24,3 +24,4 @@ class UrgentJob():
         self.endTime = 0
         self.runNode = []
         self.totalPreemptionMemory=0
+        self.status = []
