@@ -1,4 +1,4 @@
-from system import nodeStartTime
+from system import nodeStartTime,idleEnergy_W
 from basicFunction import JobPlacement,FinishJob
 from model import MultipleNodeStartup
 
@@ -27,10 +27,11 @@ def NodeStart(use_nodes,NUM_Start_NODES,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,
         exit()
     return startNodes,empty_node,urgentJob,event,Nodes
 
-def NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes):
+def NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes,energyConsumption):
     #立ち上がったNodeをシャットダウン
     for idx in reversed(startNodes):
         empty_node.remove(idx)
         Nodes.pop(idx)
+        energyConsumption += idleEnergy_W
     startNodes =[]
-    return eventJob,Nodes,empty_node,result,startNodes
+    return eventJob,Nodes,empty_node,result,startNodes,energyConsumption

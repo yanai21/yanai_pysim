@@ -1,10 +1,13 @@
-import jobSet 
+from evaluation import Makespan,EnergyConsumption
 from basicFunction import JobPlacement,FinishJob
 from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
-from system import nodeStartTime,writeBandwidth
+from system import nodeStartTime,writeBandwidth,idleEnergy_W
 from nodeStartAlgorithm import NodeStart,NodeShutdown
 from killAlgorithm import KillAlgorithm
 from model import PreemptionOverhead
+
+import jobSet 
+
 
 def main():
     NUM_NODES = 4
@@ -13,6 +16,7 @@ def main():
     normalJob_queue = jobSet.normalJob_queue
     preemptionJobs=[]
     startNodes=[]
+    energyConsumption = 0
     normalJob_queue = jobSet.normalJob_queue
     urgentJob_queue = jobSet.urgentJob_queue
     event = jobSet.event
@@ -43,7 +47,7 @@ def main():
 
         return event,Nodes,empty_node,job_queue
     #緊急ジョブの割り当て
-    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes):
+    def UrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption):
         #ノードの確認
         available_num_node = len(empty_node)
         use_nodes = urgentJob.nodes
@@ -88,10 +92,11 @@ def main():
             #Preemption
             if(NUM_NODES_Preemption != 0):
                 preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-                empty_node,urgentJob,event,Nodes,preemptionJobs=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs)
+                empty_node,urgentJob,event,Nodes,preemptionJobs,result=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs,result)
             #NodeStart
             if(NUM_NODES_NodeStart !=0):
                 startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+                energyConsumption += NUM_NODES_NodeStart * overheadTime * idleEnergy_W
             #配置：JobPlacement
             now += overheadTime
             empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
@@ -100,7 +105,7 @@ def main():
 
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
-        return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue
+        return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue,result,energyConsumption
 
     
 
@@ -120,7 +125,7 @@ def main():
             #緊急ジョブの投入かどうかを判断
             if(eventJob.type=="urgent" and eventJob.startTime==0):
                 empty_node = sorted(empty_node)
-                event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs,normalJob_queue,startNodes)
+                event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue,result,energyConsumption=UrgentJobAssignment(now,event,Nodes,empty_node,eventJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption)
             elif(eventJob.type=="urgent" and len(eventJob.status) != 0):
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result) 
@@ -129,15 +134,16 @@ def main():
                         #復帰
                         eventJob,Nodes,empty_node,preemptionJobs,event = PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event)
                     elif(status == "nodestart"):
-                        eventJob,Nodes,empty_node,result,startNodes = NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes) 
+                        eventJob,Nodes,empty_node,result,startNodes,energyConsumption = NodeShutdown(now,eventJob,Nodes,empty_node,result,startNodes,energyConsumption) 
             else:
                 #結果書き込み、Nodesから排除
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         event,Nodes,empty_node,normalJob_queue=NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
                     
-
+    #結果の出力
     print(result)
-
+    makespan = Makespan(result)
+    EnergyConsumption(result,makespan,NUM_NODES,energyConsumption)
 if __name__ == "__main__":
     main()

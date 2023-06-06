@@ -26,7 +26,7 @@ def FinishJob(now,eventJob,Nodes,empty_node,result):
     #終了時刻記入
     eventJob.endTime=now
     #結果書き込み
-    result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode])
+    result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode,eventJob.status])
     #Nodesから取り除く
     for idx, node in enumerate(Nodes):
         try:
