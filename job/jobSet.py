@@ -1,4 +1,4 @@
-from jobClass import NormalJob,UrgentJob
+from job.jobClass import NormalJob,UrgentJob
 normalJob_queue = []
 urgentJob_queue = []
 event = {} #[node番号管理]

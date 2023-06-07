@@ -1,17 +1,15 @@
 from evaluation import Makespan,EnergyConsumption
 from basicFunction import JobPlacement,FinishJob
-from preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
-from system import nodeStartTime,writeBandwidth,idleEnergy_W
-from nodeStartAlgorithm import NodeStart,NodeShutdown
-from killAlgorithm import KillAlgorithm
+from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
+from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
+from basicUrgentFunction.nodeStartAlgorithm import NodeStart,NodeShutdown
+from basicUrgentFunction.killAlgorithm import KillAlgorithm
 from model import PreemptionOverhead
 
-import jobSet 
+import job.jobSet as jobSet 
 
 
 def main():
-    NUM_NODES = 4
-    NUM_SLEEP_NODES = 3
     Nodes = [[] for _ in range(NUM_NODES)]
     normalJob_queue = jobSet.normalJob_queue
     preemptionJobs=[]
@@ -113,10 +111,6 @@ def main():
 
 
     while len(event) != 0:
-        # #結果確認用
-        # print(event)
-        # print(Nodes)
-        # print(empty_node)
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
         eventJobs=event.pop(now)
