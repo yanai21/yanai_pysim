@@ -2,9 +2,9 @@
 machine_id = 0
 NUM_NODES = 4
 NUM_SLEEP_NODES = 3
-writeBandwidth = 50
+writeBandwidth = 100
 readBandwidth = 100
-nodeStartTime = 1
+nodeStartTime = 10
 nodeEndTime = 120
 idleEnergy_W = 60
 executionEnergy_W = 210

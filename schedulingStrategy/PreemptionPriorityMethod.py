@@ -5,7 +5,7 @@ from basicUrgentFunction.nodeStartAlgorithm import NodeStart
 from model import PreemptionOverhead
 
 #緊急ジョブの割り当て
-def ProposedUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption):
+def PreemptionUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption):
     #ノードの確認
     available_num_node = len(empty_node)
     use_nodes = urgentJob.nodes
@@ -31,20 +31,11 @@ def ProposedUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJ
         dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
         #必要なノード数の把握
         NUM_NEED_NODES = use_nodes - available_num_node
-        #全探索
-        for i in range(NUM_SLEEP_NODES+1):
-            if(i==0):
-                for j in range(NUM_NEED_NODES,NUM_NODES+1):
-                    if(dp[-1][j]!=0):
-                        NUM_NODES_Preemption = j
-                        overheadTime = PreemptionOverhead(dp[-1][j],writeBandwidth)
-                        break
-            else:
-                tmpOverheadTime = max(nodeStartTime,PreemptionOverhead(dp[-1][NUM_NEED_NODES - i],writeBandwidth))
-                if(tmpOverheadTime <overheadTime):
-                    overheadTime = tmpOverheadTime
-                    NUM_NODES_NodeStart = i
-                    NUM_NODES_Preemption = NUM_NEED_NODES - i
+        for i in range(NUM_NEED_NODES,len(dp[-1])):
+            if(dp[-1][i]!=0):
+                NUM_NODES_Preemption = i
+                overheadTime = PreemptionOverhead(dp[-1][i],writeBandwidth)
+                break
         print(NUM_NODES_Preemption)
         print(NUM_NODES_NodeStart)
         #Preemption

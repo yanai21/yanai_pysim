@@ -5,8 +5,9 @@ from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP
 from basicUrgentFunction.nodeStartAlgorithm import NodeStart,NodeShutdown
 from basicUrgentFunction.killAlgorithm import KillAlgorithm
 from model import PreemptionOverhead
-from schedulingStrategy.ProposedMethod import ProposedUrgentJobAssignment,PreemptionPriorityMethod,NodeStartPriorityMethod
-
+from schedulingStrategy.ProposedMethod import ProposedUrgentJobAssignment
+from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssignment
+from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
 import job.jobSet as jobSet 
 
 #スケジューリング
@@ -80,5 +81,7 @@ def main(UrgentJobAssignment):
 
 
 if __name__ == "__main__":
-    #提案手法の実行
-    main(ProposedUrgentJobAssignment)
+    # #提案手法の実行
+    # main(ProposedUrgentJobAssignment)
+    # main(PreemptionUrgentJobAssignment)
+    main(NodeStartUrgentJobAssignment)
