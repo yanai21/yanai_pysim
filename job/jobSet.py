@@ -1,4 +1,5 @@
 from job.jobClass import NormalJob,UrgentJob
+from random import randint
 normalJob_queue = []
 urgentJob_queue = []
 event = {} #[node番号管理]
@@ -6,7 +7,7 @@ event = {} #[node番号管理]
 #通常ジョブ作成
 for i in range(5):
     #id,nodes, etime,memory
-    job_tmp = NormalJob(i+1,i+1,3,100*(i+1))
+    job_tmp = NormalJob(i+1,randint(1,4),3,100*(i+1))
     normalJob_queue.append(job_tmp)
 #緊急ジョブ作成
 for i in range(1):

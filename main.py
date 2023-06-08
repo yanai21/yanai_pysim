@@ -1,5 +1,5 @@
 from evaluation import Makespan,EnergyConsumption
-from basicFunction import JobPlacement,FinishJob
+from basicFunction import JobPlacement,FinishJob,NormalJobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
 from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
 from basicUrgentFunction.nodeStartAlgorithm import NodeStart,NodeShutdown
@@ -9,17 +9,20 @@ from schedulingStrategy.ProposedMethod import ProposedUrgentJobAssignment
 from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssignment
 from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
 import job.jobSet as jobSet 
+import copy
 
 #スケジューリング
-def main(UrgentJobAssignment):
+def main(UrgentFlag,UrgentJobAssignment):
     Nodes = [[] for _ in range(NUM_NODES)]
-    normalJob_queue = jobSet.normalJob_queue
     preemptionJobs=[]
     startNodes=[]
     energyConsumption = 0
-    normalJob_queue = jobSet.normalJob_queue
-    urgentJob_queue = jobSet.urgentJob_queue
-    event = jobSet.event
+    normalJob_queue = copy.deepcopy(jobSet.normalJob_queue)
+    if(UrgentFlag):
+        urgentJob_queue = copy.deepcopy(jobSet.urgentJob_queue)
+        event = copy.deepcopy(jobSet.event)
+    else:
+        event ={}
     now = 0
     empty_node = [i for i in range(NUM_NODES)]
     result=[]
@@ -81,7 +84,7 @@ def main(UrgentJobAssignment):
 
 
 if __name__ == "__main__":
-    # #提案手法の実行
-    # main(ProposedUrgentJobAssignment)
-    # main(PreemptionUrgentJobAssignment)
-    main(NodeStartUrgentJobAssignment)
+    main(True,ProposedUrgentJobAssignment)
+    main(True,PreemptionUrgentJobAssignment)
+    main(True,NodeStartUrgentJobAssignment)
+    main(False,NormalJobPlacement)

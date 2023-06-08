@@ -37,3 +37,7 @@ def FinishJob(now,eventJob,Nodes,empty_node,result):
             pass   
     
     return eventJob,Nodes,empty_node,result
+
+#通常ジョブのみで実行する際の引数用
+def NormalJobPlacement():
+    return
