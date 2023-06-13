@@ -40,10 +40,11 @@ def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemption
             for i in range(NUM_NEED_NODES,NUM_NODES+1):
                 if(dp[-1][i]!=0):
                     NUM_NODES_Preemption = i
-                    overheadTime = max(nodeStartTime,PreemptionOverhead(dp[-1][NUM_NEED_NODES - i],writeBandwidth))
+                    overheadTime = max(nodeStartTime,PreemptionOverhead(dp[-1][i],writeBandwidth))
                     break
         print(NUM_NODES_Preemption)
         print(NUM_NODES_NodeStart)
+        print(dp[-1][NUM_NODES_Preemption])
         #Preemption
         if(NUM_NODES_Preemption != 0):
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]

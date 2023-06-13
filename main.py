@@ -10,6 +10,7 @@ from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssig
 from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
 import job.jobSet as jobSet 
 import copy
+from gragh import MakeSpanGragh,EnergyConsumptionGragh
 
 #スケジューリング
 def main(UrgentFlag,UrgentJobAssignment):
@@ -78,13 +79,23 @@ def main(UrgentFlag,UrgentJobAssignment):
         event,Nodes,empty_node,normalJob_queue=NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
                     
     #結果の出力
-    print(result)
     makespan = Makespan(result)
-    EnergyConsumption(result,makespan,NUM_NODES,energyConsumption)
+    energyConsumption = EnergyConsumption(result,makespan,NUM_NODES,energyConsumption)
+    for tmp in result:
+        if(tmp[0]==-1):
+            print(tmp)
+            break
+    return makespan,energyConsumption
 
 
 if __name__ == "__main__":
-    main(True,ProposedUrgentJobAssignment)
-    main(True,PreemptionUrgentJobAssignment)
-    main(True,NodeStartUrgentJobAssignment)
-    main(False,NormalJobPlacement)
+    print("提案手法")
+    proposedMakespan,proposedEnergyConsumption = main(True,ProposedUrgentJobAssignment)
+    print("中断優先")
+    preemptionMakespan,preemptionEnergyConsumption = main(True,PreemptionUrgentJobAssignment)
+    print("ノード起動優先")
+    nodeStartMakespan,nodeStartEnergyConsumption = main(True,NodeStartUrgentJobAssignment)
+    print("通常ジョブのみ")
+    normalMakespan,normalEnergyConsumption = main(False,NormalJobPlacement)
+    MakeSpanGragh(normalMakespan,proposedMakespan,preemptionMakespan,nodeStartMakespan)
+    EnergyConsumptionGragh(normalEnergyConsumption,proposedEnergyConsumption,preemptionEnergyConsumption,nodeStartEnergyConsumption)

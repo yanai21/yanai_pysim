@@ -17,3 +17,4 @@ def EnergyConsumption(result,makespan,NUM_NODES,energyConsumption):
         else:
             energyConsumption += (executionEnergy_W - idleEnergy_W) * len(tmp[3])
     print('消費電力は {} W'.format(energyConsumption))
+    return energyConsumption

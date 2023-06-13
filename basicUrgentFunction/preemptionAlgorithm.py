@@ -85,8 +85,8 @@ def PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptio
 def PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event):
     #復帰時間
     recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory,readBandwidth)
-    #中断ジョブを復帰
-    print(preemptionJobs)
+    # #中断ジョブを復帰
+    # print(preemptionJobs)
     for preemptionJob in preemptionJobs:
         #情報の変更
         preemptionJob.status = "recover"
