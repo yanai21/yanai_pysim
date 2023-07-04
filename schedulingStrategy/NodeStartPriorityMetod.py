@@ -44,7 +44,7 @@ def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemption
                     break
         print(NUM_NODES_Preemption)
         print(NUM_NODES_NodeStart)
-        print(dp[-1][NUM_NODES_Preemption])
+        # print(dp[-1][NUM_NODES_Preemption])
         #Preemption
         if(NUM_NODES_Preemption != 0):
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]

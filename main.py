@@ -28,7 +28,6 @@ def main(UrgentFlag,UrgentJobAssignment):
     empty_node = [i for i in range(NUM_NODES)]
     result=[]
 
-
     def NormalJobAssignment(event,Nodes,empty_node,job_queue):
         remove_idx = []
         for idx, job in enumerate(job_queue):
@@ -77,7 +76,8 @@ def main(UrgentFlag,UrgentJobAssignment):
                 eventJob,Nodes,empty_node,result=FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         event,Nodes,empty_node,normalJob_queue=NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
-                    
+        print(now)
+        print(Nodes)
     #結果の出力
     makespan = Makespan(result)
     energyConsumption = EnergyConsumption(result,makespan,NUM_NODES,energyConsumption)
@@ -90,12 +90,12 @@ def main(UrgentFlag,UrgentJobAssignment):
 
 if __name__ == "__main__":
     print("提案手法")
-    proposedMakespan,proposedEnergyConsumption = main(True,ProposedUrgentJobAssignment)
-    print("中断優先")
-    preemptionMakespan,preemptionEnergyConsumption = main(True,PreemptionUrgentJobAssignment)
-    print("ノード起動優先")
-    nodeStartMakespan,nodeStartEnergyConsumption = main(True,NodeStartUrgentJobAssignment)
-    print("通常ジョブのみ")
-    normalMakespan,normalEnergyConsumption = main(False,NormalJobPlacement)
-    MakeSpanGragh(normalMakespan,proposedMakespan,preemptionMakespan,nodeStartMakespan)
-    EnergyConsumptionGragh(normalEnergyConsumption,proposedEnergyConsumption,preemptionEnergyConsumption,nodeStartEnergyConsumption)
+    proposedMakespan,proposedEnergyConsumption= main(True,ProposedUrgentJobAssignment)
+    # print("中断優先")
+    # preemptionMakespan,preemptionEnergyConsumption = main(True,PreemptionUrgentJobAssignment)
+    # print("ノード起動優先")
+    # nodeStartMakespan,nodeStartEnergyConsumption = main(True,NodeStartUrgentJobAssignment)
+    # print("通常ジョブのみ")
+    # normalMakespan,normalEnergyConsumption = main(False,NormalJobPlacement)
+    # MakeSpanGragh(normalMakespan,proposedMakespan,preemptionMakespan,nodeStartMakespan)
+    # EnergyConsumptionGragh(normalEnergyConsumption,proposedEnergyConsumption,preemptionEnergyConsumption,nodeStartEnergyConsumption)
