@@ -1,7 +1,7 @@
-from global_var import *
 #配置関数
 def JobPlacement(now,use_nodes,empty_node,job,event,Nodes,popNum):
     etime = job.etime
+    job.status = "run"
     finish_time = now + etime
     for i in range(use_nodes):
         arrange_node_idx = empty_node.pop(popNum)
@@ -25,8 +25,9 @@ def JobPlacement(now,use_nodes,empty_node,job,event,Nodes,popNum):
 def FinishJob(now,eventJob,Nodes,empty_node,result):
     #終了時刻記入
     eventJob.endTime=now
+    eventJob.status = "finish"
     #結果書き込み
-    result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode,eventJob.status])
+    result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode,eventJob.status,eventJob.method])
     #Nodesから取り除く
     for idx, node in enumerate(Nodes):
         try:

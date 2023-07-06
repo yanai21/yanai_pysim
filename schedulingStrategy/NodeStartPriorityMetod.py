@@ -2,16 +2,17 @@ from basicFunction import JobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,DP
 from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
 from basicUrgentFunction.nodeStartAlgorithm import NodeStart
+from basicUrgentFunction.urgentJobReserve import UrgentReserve
 from model import PreemptionOverhead
 
 #緊急ジョブの割り当て
-def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption,reservedNodes):
+def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,now,urgentJob,event,result):
     #ノードの確認
     available_num_node = len(empty_node)
     use_nodes = urgentJob.nodes
     #Idleノードに割り当て
     if available_num_node >= use_nodes:
-        empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
+        JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
     #Idleノードに割り当てられない時
     else:
         #中断とノード起動のノード数を管理
@@ -44,21 +45,19 @@ def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemption
                     break
         print(NUM_NODES_Preemption)
         print(NUM_NODES_NodeStart)
-        # print(dp[-1][NUM_NODES_Preemption])
         #Preemption
         if(NUM_NODES_Preemption != 0):
+            #TODO:eventに追加
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
             empty_node,urgentJob,event,Nodes,preemptionJobs,result=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs,result)
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
-            startNodes,empty_node,urgentJob,event,Nodes,reservedNodes = NodeStart(use_nodes,NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,reservedNodes)
-            energyConsumption += NUM_NODES_NodeStart * overheadTime * idleEnergy_W
-        #配置：JobPlacement
-        now += overheadTime
-        reservedNodes,urgentJob,event,Nodes=JobPlacement(now,use_nodes,reservedNodes,urgentJob,event,Nodes,popNum=-1)
-        #kill
-        # empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
+            #TODO:eventに追加
+            NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+        #緊急ジョブの割り当て時刻の決定
+        finishtime = now + overheadTime
+        #緊急ジョブを割り当てるノードの予約
+        UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime)
 
     event = sorted(event.items())
     event = dict((x, y) for x, y in event)
-    return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue,result,energyConsumption,reservedNodes

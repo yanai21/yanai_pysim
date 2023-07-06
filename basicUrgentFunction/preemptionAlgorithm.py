@@ -60,8 +60,8 @@ def PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptio
         #中断開始
         preemptionNode=[]
         for preemptionJob in preemptionJobs:
-            #statusを追加
-            preemptionJob.status = "preemption"
+            # #statusを追加
+            # preemptionJob.status = "preemption"
             #終了時刻記入
             preemptionJob.endTime=now
             #結果書き込み
