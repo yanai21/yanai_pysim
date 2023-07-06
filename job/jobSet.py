@@ -8,8 +8,8 @@ event = {} #[node番号管理]
 #通常ジョブ作成
 for i in range(3):
     #id,nodes, etime,memory
-    nodes = randint(1,5)
-    etime = randint(1,10)
+    nodes = i+1
+    etime = i+1
     memory = nodeMemory * nodes *  randint(20,30) // 100
     job_tmp = NormalJob(i+1,nodes,etime,memory)
     normalJob_queue.append(job_tmp)

@@ -5,7 +5,7 @@ from basicUrgentFunction.nodeStartAlgorithm import NodeStart
 from model import PreemptionOverhead
 
 #緊急ジョブの割り当て
-def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption):
+def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemptionJobs,normalJob_queue,startNodes,result,energyConsumption,reservedNodes):
     #ノードの確認
     available_num_node = len(empty_node)
     use_nodes = urgentJob.nodes
@@ -51,14 +51,14 @@ def NodeStartUrgentJobAssignment(now,event,Nodes,empty_node,urgentJob,preemption
             empty_node,urgentJob,event,Nodes,preemptionJobs,result=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs,result)
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
-            startNodes,empty_node,urgentJob,event,Nodes = NodeStart(use_nodes,NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            startNodes,empty_node,urgentJob,event,Nodes,reservedNodes = NodeStart(use_nodes,NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,reservedNodes)
             energyConsumption += NUM_NODES_NodeStart * overheadTime * idleEnergy_W
         #配置：JobPlacement
         now += overheadTime
-        empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=-1)
+        reservedNodes,urgentJob,event,Nodes=JobPlacement(now,use_nodes,reservedNodes,urgentJob,event,Nodes,popNum=-1)
         #kill
         # empty_node,urgentJob,event,Nodes,normalJob_queue = KillAlgorithm(urgentJob,Nodes,NUM_NODES,available_num_node,use_nodes,now,event,empty_node,normalJob_queue)
 
     event = sorted(event.items())
     event = dict((x, y) for x, y in event)
-    return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue,result,energyConsumption
+    return event,Nodes,empty_node,preemptionJobs,startNodes,normalJob_queue,result,energyConsumption,reservedNodes
