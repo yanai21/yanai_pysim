@@ -7,7 +7,7 @@ def UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime):
     for i in range(use_nodes):
         arrange_node_idx = empty_node.pop(-1)
         if(Nodes[arrange_node_idx]==[]):
-            Nodes[arrange_node_idx].append("reserved")
+            Nodes[arrange_node_idx] = ["reserved"]
         reservedNodes.append(arrange_node_idx)
         #予約ノードを書き込み
         urgentJob.runNode.append(arrange_node_idx)

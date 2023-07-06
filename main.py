@@ -2,7 +2,7 @@ from evaluation import Makespan,EnergyConsumption
 from basicFunction import JobPlacement,FinishJob,NormalJobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
 from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
-from basicUrgentFunction.nodeStartAlgorithm import NodeStart,NodeShutdown
+from basicUrgentFunction.nodeStartAlgorithm import NodeShutdown,NodeShutdownFinish,NodeStartFinish
 from basicUrgentFunction.killAlgorithm import KillAlgorithm
 from basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 from model import PreemptionOverhead
@@ -64,11 +64,13 @@ def main(UrgentFlag,UrgentJobAssignment):
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
         eventJobs=event.pop(now)
-        for eventJob in reversed(eventJobs):
+        for eventJob in eventJobs:
             #中断とノードスタートの通知
             if(eventJob == "nodeStart"):
                 #Nodesを書き換え
-                pass
+                NodeStartFinish(Nodes,reservedNodes,startNodes)
+            elif(eventJob == "shutdown"):
+                NodeShutdownFinish(startNodes,Nodes)
             #割り当て前の緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == ""):
                 empty_node = sorted(empty_node)
@@ -79,6 +81,9 @@ def main(UrgentFlag,UrgentJobAssignment):
             #実行終了した緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == "run"):
                 FinishJob(now,eventJob,Nodes,empty_node,result)
+                for method in eventJob.method:
+                    if(method == "nodestart"):
+                        NodeShutdown(now,Nodes,empty_node,startNodes,event)
             else:
                 #通常ジョブの終了
                 FinishJob(now,eventJob,Nodes,empty_node,result)   

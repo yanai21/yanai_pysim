@@ -20,7 +20,7 @@ writeBandwidth = 5000
 readBandwidth = 5000
 #s 表記
 nodeStartTime = 10
-nodeEndTime = 120
+nodeEndTime = 10
 idleEnergy_W = 60
 executionEnergy_W = 210
 

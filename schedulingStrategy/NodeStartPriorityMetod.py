@@ -53,7 +53,7 @@ def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,rese
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
             #TODO:eventに追加
-            NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event)
+            NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,startNodes)
         #緊急ジョブの割り当て時刻の決定
         finishtime = now + overheadTime
         #緊急ジョブを割り当てるノードの予約
