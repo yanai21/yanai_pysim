@@ -12,7 +12,7 @@
 # print(aobaA)
 machine_id = 0
 NUM_NODES = 6
-NUM_SLEEP_NODES =5
+NUM_SLEEP_NODES = 0
 #MB表記
 nodeMemory = 48 *1024
 #MB/s 表記

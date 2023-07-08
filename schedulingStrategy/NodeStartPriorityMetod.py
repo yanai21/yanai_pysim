@@ -47,12 +47,10 @@ def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,rese
         print(NUM_NODES_NodeStart)
         #Preemption
         if(NUM_NODES_Preemption != 0):
-            #TODO:eventに追加
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-            empty_node,urgentJob,event,Nodes,preemptionJobs,result=PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs,result)
+            PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,result)
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
-            #TODO:eventに追加
             NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,startNodes)
         #緊急ジョブの割り当て時刻の決定
         finishtime = now + overheadTime

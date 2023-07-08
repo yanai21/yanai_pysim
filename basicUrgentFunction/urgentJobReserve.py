@@ -13,6 +13,8 @@ def UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime):
         urgentJob.runNode.append(arrange_node_idx)
     #eventの追加
     try:
-        event[finishtime].append(urgentJob)
+        tmp = event[finishtime]
+        tmp.insert(0,urgentJob)
+        event[finishtime] = tmp
     except:
         event[finishtime] = [urgentJob]

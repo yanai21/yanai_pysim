@@ -52,11 +52,12 @@ def main(UrgentFlag,UrgentJobAssignment):
         #ジョブキューから配置したジョブを削除
         for idx in reversed(remove_idx):
             normalJob_queue.pop(idx)
-        event = sorted(event.items())
-        event = dict((x, y) for x, y in event)
 
     #1回目
     NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
+    #eventの並び替え
+    event = sorted(event.items())
+    event = dict((x, y) for x, y in event)
     print(now)
     print(Nodes)
     #２回目以降
@@ -64,13 +65,20 @@ def main(UrgentFlag,UrgentJobAssignment):
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
         eventJobs=event.pop(now)
-        for eventJob in eventJobs:
-            #中断とノードスタートの通知
+        for eventJob in reversed(eventJobs):
+            #起動によってできるイベント
             if(eventJob == "nodeStart"):
                 #Nodesを書き換え
                 NodeStartFinish(Nodes,reservedNodes,startNodes)
             elif(eventJob == "shutdown"):
                 NodeShutdownFinish(startNodes,Nodes)
+            #中断によってできるイベント
+            elif(eventJob == "preemption"):
+                pass
+            elif(eventJob == "recover"):
+                pass
+            elif(eventJob ==""):
+                pass
             #割り当て前の緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == ""):
                 empty_node = sorted(empty_node)
@@ -89,6 +97,9 @@ def main(UrgentFlag,UrgentJobAssignment):
                 FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
+        #eventの並び替え
+        event = sorted(event.items())
+        event = dict((x, y) for x, y in event)
         print(now)
         print(Nodes)
         print(event)

@@ -55,20 +55,19 @@ def DP(N,W,DataList):
                     dp,BreakDP=OnlyCopy(dp,i,j,BreakDP)
     return dp,BreakDP
 
-def PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptionJobs,result):
-        urgentJob.status.append("preemption")
+def PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,result):
+        urgentJob.method.append("preemption")
         #中断開始
         preemptionNode=[]
         for preemptionJob in preemptionJobs:
-            # #statusを追加
-            # preemptionJob.status = "preemption"
             #終了時刻記入
             preemptionJob.endTime=now
+            #statusの変更
+            preemptionJob.status = "preemptionJob"
             #結果書き込み
             result.append([preemptionJob.id,preemptionJob.startTime,preemptionJob.endTime,preemptionJob.runNode,preemptionJob.status])
             #残り時間の計測
             preemptionJob.leftEtime = preemptionJob.etime - now
-            #中断ジョブをeventから削除
             event_tmp = event[preemptionJob.eEndTime]
             event_tmp.remove(preemptionJob)
             event[preemptionJob.eEndTime] = event_tmp
@@ -76,11 +75,18 @@ def PreemptionAlgorithm(urgentJob,Nodes,use_nodes,now,event,empty_node,preemptio
             preemptionNode.extend(preemptionJob.runNode)
             #中断に要する時間を計測
             urgentJob.totalPreemptionMemory += preemptionJob.memory
+        #イベントに追加
+        finishtime = now + PreemptionOverhead(urgentJob.totalPreemptionMemory,writeBandwidth)
+        try:
+            event[finishtime].afppend('preemption')
+        except:
+            event[finishtime] = ['preemption']
         #Nodesから取り除く
         for idx in reversed(preemptionNode):
-            Nodes[idx]=[]
+            #eventの追加
+            #Nodesに中断中と明記
+            Nodes[idx]=["preemption"]
             empty_node.append(idx)
-        return empty_node,urgentJob,event,Nodes,preemptionJobs,result
 
 def PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event):
     #復帰時間
@@ -108,20 +114,6 @@ def PreemptionRecover(eventJob,Nodes,empty_node,now,preemptionJobs,event):
     return eventJob,Nodes,empty_node,preemptionJobs,event
 
 
-# #テスト用のデータ生成
-# from job import NormalJob
-# DataList=[]
-# NUM_Nodes=0
-# NUM_Jobs=10
-# for i in range(NUM_Jobs):
-#     #id,nodes, etime,memory
-#     job_tmp = NormalJob(i+1,i+1, 3,10)
-#     NUM_Nodes+=job_tmp.nodes
-#     DataList.append(job_tmp)
-
-# dp,breakdp=DP(NUM_Jobs,NUM_Nodes,DataList)
-# print(dp)
-# print(breakdp)
 
 
 
