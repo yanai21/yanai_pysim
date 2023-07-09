@@ -1,11 +1,9 @@
 from evaluation import Makespan,EnergyConsumption
 from basicFunction import JobPlacement,FinishJob,NormalJobPlacement
-from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,PreemptionRecover,DP
+from basicUrgentFunction.preemptionAlgorithm import PreemptionFinish,PreemptionRecover,PreemptionRecoverFinish
 from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
 from basicUrgentFunction.nodeStartAlgorithm import NodeShutdown,NodeShutdownFinish,NodeStartFinish
-from basicUrgentFunction.killAlgorithm import KillAlgorithm
 from basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
-from model import PreemptionOverhead
 from schedulingStrategy.ProposedMethod import ProposedUrgentJobAssignment
 from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssignment
 from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
@@ -17,7 +15,7 @@ from global_var import *
 
 #スケジューリング
 def main(UrgentFlag,UrgentJobAssignment):
-    global Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,now,normalJob_queue,urgentJob_queue,event,result
+    global Nodes,empty_node,preemptionJobs,preemptionNodes,startNodes,reservedNodes,now,normalJob_queue,urgentJob_queue,event,result
     #ノード関係
     Nodes = [[] for _ in range(NUM_NODES)]
     empty_node = [i for i in range(NUM_NODES)]
@@ -62,10 +60,14 @@ def main(UrgentFlag,UrgentJobAssignment):
     print(Nodes)
     #２回目以降
     while len(event) != 0:
+        #eventの並び替え
+        event = sorted(event.items())
+        event = dict((x, y) for x, y in event)
         #終了ジョブをNodesから取り除く
         now=next(iter(event))
         eventJobs=event.pop(now)
         for eventJob in reversed(eventJobs):
+            #TODO:この分岐が多すぎる…
             #起動によってできるイベント
             if(eventJob == "nodeStart"):
                 #Nodesを書き換え
@@ -74,15 +76,15 @@ def main(UrgentFlag,UrgentJobAssignment):
                 NodeShutdownFinish(startNodes,Nodes)
             #中断によってできるイベント
             elif(eventJob == "preemption"):
-                pass
+                PreemptionFinish(Nodes,preemptionNodes)
             elif(eventJob == "recover"):
-                pass
+                preemptionJobs,event = PreemptionRecoverFinish(Nodes,now,preemptionJobs,event)
             elif(eventJob ==""):
                 pass
             #割り当て前の緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == ""):
                 empty_node = sorted(empty_node)
-                UrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,now,eventJob,event,result)
+                preemptionJobs = UrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,preemptionNodes,now,eventJob,event,result)
             #予約された緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == "reserved"):
                 UrgentJobPlacement(now,eventJob,Nodes,event,reservedNodes)
@@ -92,25 +94,24 @@ def main(UrgentFlag,UrgentJobAssignment):
                 for method in eventJob.method:
                     if(method == "nodestart"):
                         NodeShutdown(now,Nodes,empty_node,startNodes,event)
+                    elif(method == "preemption"):
+                        PreemptionRecover(eventJob,Nodes,now,preemptionNodes,event,empty_node)
             else:
                 #通常ジョブの終了
                 FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
-        #eventの並び替え
-        event = sorted(event.items())
-        event = dict((x, y) for x, y in event)
-        print(now)
-        print(Nodes)
-        print(event)
+        # print(now)
+        # print(event)
+        # print(Nodes)
     print(result)
 
 if __name__ == "__main__":
     # print("提案手法")
-    # proposedMakespan,proposedEnergyConsumption= main(True,ProposedUrgentJobAssignment)
-    # print("中断優先")
-    # preemptionMakespan,preemptionEnergyConsumption = main(True,PreemptionUrgentJobAssignment)
+    # main(True,ProposedUrgentJobAssignment)
+    print("中断優先")
+    main(True,PreemptionUrgentJobAssignment)
     print("ノード起動優先")
     main(True,NodeStartUrgentJobAssignment)
-    # print("通常ジョブのみ")
-    # main(False,NormalJobPlacement)
+    print("通常ジョブのみ")
+    main(False,NormalJobPlacement)

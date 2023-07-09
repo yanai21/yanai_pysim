@@ -6,7 +6,7 @@ from basicUrgentFunction.urgentJobReserve import UrgentReserve
 from model import PreemptionOverhead
 
 #緊急ジョブの割り当て
-def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,now,urgentJob,event,result):
+def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,preemptionNodes,now,urgentJob,event,result):
     #ノードの確認
     available_num_node = len(empty_node)
     use_nodes = urgentJob.nodes
@@ -48,7 +48,7 @@ def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,rese
         #Preemption
         if(NUM_NODES_Preemption != 0):
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-            PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,result)
+            preemptionJobs = PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,preemptionNodes,result)
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
             NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,startNodes)
@@ -56,6 +56,4 @@ def NodeStartUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,rese
         finishtime = now + overheadTime
         #緊急ジョブを割り当てるノードの予約
         UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime)
-
-    event = sorted(event.items())
-    event = dict((x, y) for x, y in event)
+    return preemptionJobs

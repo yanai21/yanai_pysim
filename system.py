@@ -11,15 +11,15 @@
 # }
 # print(aobaA)
 machine_id = 0
-NUM_NODES = 6
-NUM_SLEEP_NODES = 0
+NUM_NODES = 8
+NUM_SLEEP_NODES = 6
 #MB表記
 nodeMemory = 48 *1024
 #MB/s 表記
 writeBandwidth = 5000
 readBandwidth = 5000
 #s 表記
-nodeStartTime = 10
+nodeStartTime = 1
 nodeEndTime = 10
 idleEnergy_W = 60
 executionEnergy_W = 210
