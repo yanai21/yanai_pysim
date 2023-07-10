@@ -9,7 +9,7 @@ event = {} #[node番号管理]
 #通常ジョブ作成
 for i in range(100):
     #id,nodes, etime,memory
-    nodes = randint(1,20)
+    nodes = randint(1,6)
     etime = randint(10,100)
     memory = nodeMemory * nodes
     job_tmp = NormalJob(i+1,nodes,etime,memory)
@@ -17,7 +17,7 @@ for i in range(100):
 #緊急ジョブ作成
 for i in range(1):
     #id,nodes, etime,memory,occurrenceTime,deadlineTime
-    job_tmp = UrgentJob(-(i+1), 278, 3000,i,10,660)
+    job_tmp = UrgentJob(-(i+1), 6, 3000,i,10,660)
     urgentJob_queue.append(job_tmp) 
     #緊急ジョブの発生時刻をeventに追加
     try:
