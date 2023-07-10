@@ -1,4 +1,4 @@
-from evaluation import Makespan,EnergyConsumption
+from evaluation import Makespan,ElectricPower
 from basicFunction import JobPlacement,FinishJob,NormalJobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionFinish,PreemptionRecover,PreemptionRecoverFinish
 from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
@@ -9,7 +9,7 @@ from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssig
 from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
 import job.jobSet as jobSet 
 import copy
-from gragh import MakeSpanGragh,EnergyConsumptionGragh
+from gragh import MakeSpanGragh,ElectricPowerGragh
 
 from global_var import *
 
@@ -23,6 +23,7 @@ def main(UrgentFlag,UrgentJobAssignment):
     preemptionJobs=[]
     startNodes=[]
     reservedNodes = []
+    electricPowerResult = []
     #現時刻
     now = 0
     normalJob_queue = copy.deepcopy(jobSet.normalJob_queue)
@@ -56,8 +57,8 @@ def main(UrgentFlag,UrgentJobAssignment):
     #eventの並び替え
     event = sorted(event.items())
     event = dict((x, y) for x, y in event)
-    print(now)
-    print(Nodes)
+    # print("now:{}".format(now))
+    # print(Nodes)
     #２回目以降
     while len(event) != 0:
         #eventの並び替え
@@ -101,17 +102,27 @@ def main(UrgentFlag,UrgentJobAssignment):
                 FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
-        # print(now)
-        # print(event)
-        # print(Nodes)
-    print(result)
+        print("now:{}".format(now))
+        print(Nodes)
+        #最大電力を計算
+        electricPowerResult = ElectricPower(electricPowerResult,now,Nodes)
+    for tmp in result:
+        if(tmp[0]==-1):
+            print(tmp)
+    print(len(result))
+    # print(result)
+    makespan = Makespan(result)
+    return makespan,electricPowerResult
 
 if __name__ == "__main__":
     # print("提案手法")
     # main(True,ProposedUrgentJobAssignment)
     print("中断優先")
-    main(True,PreemptionUrgentJobAssignment)
+    preemptionMakespan,preemptionElectricPowerResult = main(True,PreemptionUrgentJobAssignment)
     print("ノード起動優先")
-    main(True,NodeStartUrgentJobAssignment)
+    nodeStartMakespan,nodeStartElectricPowerResult = main(True,NodeStartUrgentJobAssignment)
     print("通常ジョブのみ")
-    main(False,NormalJobPlacement)
+    normalJobMakespan,normalJobElectricPowerResult = main(False,NormalJobPlacement)
+    #グラフ
+    MakeSpanGragh(normalJobMakespan,preemptionMakespan,nodeStartMakespan)
+    ElectricPowerGragh(normalJobElectricPowerResult,preemptionElectricPowerResult,nodeStartElectricPowerResult)

@@ -37,8 +37,8 @@ def PreemptionUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,res
                 NUM_NODES_Preemption = i
                 overheadTime = PreemptionOverhead(dp[-1][i],writeBandwidth)
                 break
-        print(NUM_NODES_Preemption)
-        print(NUM_NODES_NodeStart)
+        print("PreemptionNodes:{}".format(NUM_NODES_Preemption))
+        print("NodeStartNodes:{}".format(NUM_NODES_NodeStart))
         #Preemption
         if(NUM_NODES_Preemption != 0):
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]

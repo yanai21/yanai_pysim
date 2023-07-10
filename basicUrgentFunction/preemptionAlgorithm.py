@@ -96,7 +96,11 @@ def PreemptionRecover(eventJob,Nodes,now,preemptionNodes,event,empty_node):
     recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory,readBandwidth)
     for idx in preemptionNodes:
         Nodes[idx]=["recover"]
-        empty_node.remove(idx)
+        #TODO:原因を追求する必要あり
+        try:
+            empty_node.remove(idx)
+        except:
+            pass
     finish_time = now + recover_time
     try:
         event[finish_time].append("recover")
@@ -119,7 +123,7 @@ def PreemptionRecoverFinish(Nodes,now,preemptionJobs,event):
             event[finish_time] = [preemptionJob]
         event = sorted(event.items())
         event = dict((x, y) for x, y in event)
-        print(event)
+        # print(event)
     preemptionJobs=[]
     return preemptionJobs,event
 
