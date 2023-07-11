@@ -16,7 +16,10 @@ from global_var import *
 
 #スケジューリング
 def main(name,UrgentFlag,UrgentJobAssignment):
-    os.remove('./log/{}/Nodes.txt'.format(name))
+    try:
+        os.remove('./log/{}/Nodes.txt'.format(name))
+    except:
+        pass
     global Nodes,empty_node,preemptionJobs,preemptionNodes,startNodes,reservedNodes,now,normalJob_queue,urgentJob_queue,event,result
     #ノード関係
     Nodes = [[] for _ in range(NUM_NODES)]
