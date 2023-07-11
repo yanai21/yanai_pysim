@@ -56,6 +56,7 @@ def DP(N,W,DataList):
     return dp,BreakDP
 
 def PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,preemptionNodes,result):
+        preemptionNodes = []
         urgentJob.method.append("preemption")
         for preemptionJob in preemptionJobs:
             #終了時刻記入
@@ -69,7 +70,6 @@ def PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,pree
             event_tmp = event[preemptionJob.eEndTime]
             event_tmp.remove(preemptionJob)
             event[preemptionJob.eEndTime] = event_tmp
-            #中断した結果、空いたノードの把握
             preemptionNodes.extend(preemptionJob.runNode)
             #中断に要する時間を計測
             urgentJob.totalPreemptionMemory += preemptionJob.memory
@@ -96,11 +96,7 @@ def PreemptionRecover(eventJob,Nodes,now,preemptionNodes,event,empty_node):
     recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory,readBandwidth)
     for idx in preemptionNodes:
         Nodes[idx]=["recover"]
-        #TODO:原因を追求する必要あり
-        try:
-            empty_node.remove(idx)
-        except:
-            pass
+        empty_node.remove(idx)
     finish_time = now + recover_time
     try:
         event[finish_time].append("recover")

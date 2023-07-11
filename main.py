@@ -8,13 +8,18 @@ from schedulingStrategy.ProposedMethod import ProposedUrgentJobAssignment
 from schedulingStrategy.PreemptionPriorityMethod import PreemptionUrgentJobAssignment
 from schedulingStrategy.NodeStartPriorityMetod import NodeStartUrgentJobAssignment
 import job.jobSet as jobSet 
+from log import LogNormalJob,LogResult,LogNodes
 import copy
 from gragh import MakeSpanGragh,ElectricPowerGragh
-
+import os
 from global_var import *
 
 #スケジューリング
-def main(UrgentFlag,UrgentJobAssignment):
+def main(name,UrgentFlag,UrgentJobAssignment):
+    try:
+        os.remove('./log/{}/Nodes.txt'.format(name))
+    except:
+        pass
     global Nodes,empty_node,preemptionJobs,preemptionNodes,startNodes,reservedNodes,now,normalJob_queue,urgentJob_queue,event,result
     #ノード関係
     Nodes = [[] for _ in range(NUM_NODES)]
@@ -32,6 +37,7 @@ def main(UrgentFlag,UrgentJobAssignment):
         event = copy.deepcopy(jobSet.event)
     else:
         event ={}
+    LogNormalJob(name,normalJob_queue,urgentJob_queue)
     #結果用
     result=[]
     #通常ジョブ割り当て
@@ -54,6 +60,7 @@ def main(UrgentFlag,UrgentJobAssignment):
 
     #1回目
     NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
+    LogNodes(name,now,Nodes)
     #eventの並び替え
     event = sorted(event.items())
     event = dict((x, y) for x, y in event)
@@ -102,15 +109,16 @@ def main(UrgentFlag,UrgentJobAssignment):
                 FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
-        print("now:{}".format(now))
-        print(Nodes)
+        LogNodes(name,now,Nodes)
+        # print("now:{}".format(now))
+        # print(Nodes)
         #最大電力を計算
         electricPowerResult = ElectricPower(electricPowerResult,now,Nodes)
     for tmp in result:
         if(tmp[0]==-1):
             print(tmp)
-    print(len(result))
     # print(result)
+    LogResult(name,result)
     makespan = Makespan(result)
     return makespan,electricPowerResult
 
@@ -118,11 +126,11 @@ if __name__ == "__main__":
     # print("提案手法")
     # main(True,ProposedUrgentJobAssignment)
     print("中断優先")
-    preemptionMakespan,preemptionElectricPowerResult = main(True,PreemptionUrgentJobAssignment)
+    preemptionMakespan,preemptionElectricPowerResult = main("preemption",True,PreemptionUrgentJobAssignment)
     print("ノード起動優先")
-    nodeStartMakespan,nodeStartElectricPowerResult = main(True,NodeStartUrgentJobAssignment)
+    nodeStartMakespan,nodeStartElectricPowerResult = main("nodeStart",True,NodeStartUrgentJobAssignment)
     print("通常ジョブのみ")
-    normalJobMakespan,normalJobElectricPowerResult = main(False,NormalJobPlacement)
+    normalJobMakespan,normalJobElectricPowerResult = main("normalJob",False,NormalJobPlacement)
     #グラフ
     MakeSpanGragh(normalJobMakespan,preemptionMakespan,nodeStartMakespan)
     ElectricPowerGragh(normalJobElectricPowerResult,preemptionElectricPowerResult,nodeStartElectricPowerResult)

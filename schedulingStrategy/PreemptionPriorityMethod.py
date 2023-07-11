@@ -12,7 +12,7 @@ def PreemptionUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,res
     use_nodes = urgentJob.nodes
     #Idleノードに割り当て
     if available_num_node >= use_nodes:
-        empty_node,urgentJob,event,Nodes=JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
+        JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
     #Idleノードに割り当てられない時
     else:
         #中断とノード起動のノード数を管理
