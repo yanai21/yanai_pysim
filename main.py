@@ -102,8 +102,8 @@ def main(UrgentFlag,UrgentJobAssignment):
                 FinishJob(now,eventJob,Nodes,empty_node,result)   
         empty_node = sorted(empty_node)
         NormalJobAssignment(event,Nodes,empty_node,normalJob_queue)
-        print("now:{}".format(now))
-        print(Nodes)
+        # print("now:{}".format(now))
+        # print(Nodes)
         #最大電力を計算
         electricPowerResult = ElectricPower(electricPowerResult,now,Nodes)
     for tmp in result:

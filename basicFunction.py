@@ -30,12 +30,13 @@ def FinishJob(now,eventJob,Nodes,empty_node,result):
     result.append([eventJob.id,eventJob.startTime,eventJob.endTime,eventJob.runNode,eventJob.status,eventJob.method])
     #Nodesから取り除く
     for idx, node in enumerate(Nodes):
+        #配列が空の可能性があるためtryを使う
         try:
-            if(eventJob.id==node[0].id):
+            if(eventJob==node[0]):
                 Nodes[idx]=[]
                 empty_node.append(idx)
         except:
-            pass   
+            pass
 
 #通常ジョブのみで実行する際の引数用
 def NormalJobPlacement():
