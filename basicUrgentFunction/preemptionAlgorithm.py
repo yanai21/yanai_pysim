@@ -80,7 +80,6 @@ def PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,pree
         except:
             event[finishtime] = ['preemption']
         #Nodesから取り除く
-        print("preemptionNodes:{}".format(preemptionNodes))
         for idx in reversed(preemptionNodes):
             #eventの追加
             #Nodesに中断中と明記

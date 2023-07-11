@@ -28,7 +28,7 @@ event = {} #[node番号管理]
 #通常ジョブ作成
 for i in range(1000):
     #id,nodes, etime,memory
-    nodes = randint(1,20)
+    nodes = randint(1,100)
     etime = randint(10,100)
     memory = nodeMemory * nodes *  randint(30,70) // 100
     job_tmp = NormalJob(i+1,nodes,etime,memory)
