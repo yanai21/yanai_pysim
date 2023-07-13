@@ -42,12 +42,12 @@ def PreemptionUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,res
         #Preemption
         if(NUM_NODES_Preemption != 0):
             preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-            preemptionJobs = PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,preemptionNodes,result)
+            preemptionJobs,preemptionNodes,reservedNodes = PreemptionAlgorithm(urgentJob,Nodes,now,event,preemptionJobs,preemptionNodes,result,reservedNodes)
         #NodeStart
         if(NUM_NODES_NodeStart !=0):
-            NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,startNodes)
+            startNodes,reservedNodes=NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,Nodes,event,startNodes,reservedNodes)
         #緊急ジョブの割り当て時刻の決定
         finishtime = now + overheadTime
         #緊急ジョブを割り当てるノードの予約
-        UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime)
-    return preemptionJobs
+        reservedNodes = UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime)
+    return preemptionJobs,startNodes,reservedNodes,preemptionNodes

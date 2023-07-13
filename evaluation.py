@@ -1,6 +1,6 @@
 from system import idleEnergy_W,executionEnergy_W
 def Makespan(result):
-    makespan = result[-1][2] - result[0][1]
+    makespan = result[-1][2]
     return makespan
 def EnergyConsumption(result,makespan,NUM_NODES,energyConsumption):
     #idleノード分割り当て

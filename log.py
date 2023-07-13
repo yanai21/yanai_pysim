@@ -22,7 +22,7 @@ def LogNodes(name,now,Nodes):
     with open('./log/{}/Nodes.txt'.format(name), 'a') as file:
         # 秒を書き込む
         file.write("now:{}\n".format(now))
-        tmp=""
+        tmp="len:{},".format(len(Nodes))
         for idx,node in enumerate(Nodes):
             if(idx ==0):
                 pass

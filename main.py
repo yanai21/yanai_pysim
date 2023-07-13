@@ -16,16 +16,18 @@ from global_var import *
 
 #スケジューリング
 def main(name,UrgentFlag,UrgentJobAssignment):
+    #前回のログを消すために必要
     try:
         os.remove('./log/{}/Nodes.txt'.format(name))
     except:
         pass
-    global Nodes,empty_node,preemptionJobs,preemptionNodes,startNodes,reservedNodes,now,normalJob_queue,urgentJob_queue,event,result
+    global Nodes,empty_node,now,normalJob_queue,urgentJob_queue,event,result
     #ノード関係
     Nodes = [[] for _ in range(NUM_NODES)]
     empty_node = [i for i in range(NUM_NODES)]
     #緊急ジョブ関係
     preemptionJobs=[]
+    preemptionNodes =[]
     startNodes=[]
     reservedNodes = []
     electricPowerResult = []
@@ -36,6 +38,7 @@ def main(name,UrgentFlag,UrgentJobAssignment):
         urgentJob_queue = copy.deepcopy(jobSet.urgentJob_queue)
         event = copy.deepcopy(jobSet.event)
     else:
+        urgentJob_queue = []
         event ={}
     LogNormalJob(name,normalJob_queue,urgentJob_queue)
     #結果用
@@ -81,7 +84,7 @@ def main(name,UrgentFlag,UrgentJobAssignment):
                 #Nodesを書き換え
                 NodeStartFinish(Nodes,reservedNodes,startNodes)
             elif(eventJob == "shutdown"):
-                NodeShutdownFinish(startNodes,Nodes)
+                startNodes=NodeShutdownFinish(startNodes,Nodes)
             #中断によってできるイベント
             elif(eventJob == "preemption"):
                 PreemptionFinish(Nodes,preemptionNodes)
@@ -92,10 +95,10 @@ def main(name,UrgentFlag,UrgentJobAssignment):
             #割り当て前の緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == ""):
                 empty_node = sorted(empty_node)
-                preemptionJobs = UrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,preemptionNodes,now,eventJob,event,result)
+                preemptionJobs,startNodes,reservedNodes,preemptionNodes = UrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,preemptionNodes,now,eventJob,event,result)
             #予約された緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == "reserved"):
-                UrgentJobPlacement(now,eventJob,Nodes,event,reservedNodes)
+                reservedNodes = UrgentJobPlacement(now,eventJob,Nodes,event,reservedNodes)
             #実行終了した緊急ジョブ
             elif(eventJob.type=="urgent" and eventJob.status == "run"):
                 FinishJob(now,eventJob,Nodes,empty_node,result)
@@ -115,7 +118,7 @@ def main(name,UrgentFlag,UrgentJobAssignment):
         #最大電力を計算
         electricPowerResult = ElectricPower(electricPowerResult,now,Nodes)
     for tmp in result:
-        if(tmp[0]==-1):
+        if(tmp[0]<0):
             print(tmp)
     # print(result)
     LogResult(name,result)

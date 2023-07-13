@@ -11,3 +11,4 @@ def UrgentJobPlacement(now,urgentJob,Nodes,event,reservedNodes):
     except:
         event[finish_time] = [urgentJob]
     reservedNodes = []
+    return reservedNodes
