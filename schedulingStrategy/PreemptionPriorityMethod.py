@@ -1,6 +1,6 @@
 from basicFunction import JobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,DP
-from system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
+from environment.class.system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
 from basicUrgentFunction.nodeStartAlgorithm import NodeStart
 from basicUrgentFunction.urgentJobReserve import UrgentReserve
 from model import PreemptionOverhead

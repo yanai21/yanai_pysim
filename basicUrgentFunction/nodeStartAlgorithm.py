@@ -1,4 +1,4 @@
-from system import nodeStartTime, idleEnergy_W, nodeEndTime
+from environment.class.system import nodeStartTime, idleEnergy_W, nodeEndTime
 from basicFunction import JobPlacement, FinishJob
 
 

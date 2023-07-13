@@ -1,4 +1,4 @@
-from system import idleEnergy_W,executionEnergy_W
+from environment.class.system import idleEnergy_W,executionEnergy_W
 def Makespan(result):
     makespan = result[-1][2]
     return makespan

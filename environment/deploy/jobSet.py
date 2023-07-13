@@ -1,12 +1,10 @@
-from job.jobClass import NormalJob,UrgentJob
+from jobClass import NormalJob,UrgentJob
 from random import randint
-from system import nodeMemory
+from system import aoba_a
 normalJob_queue = []
 urgentJob_queue = []
 event = {} #[node番号管理]
-
-
-
+nodeMemory = aoba_a.nodeMemory_mb
 #通常ジョブ作成
 for i in range(100):
     #id,nodes, etime,memory
