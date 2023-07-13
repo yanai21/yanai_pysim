@@ -1,5 +1,5 @@
 from environment.class.system import nodeStartTime, idleEnergy_W, nodeEndTime
-from basicFunction import JobPlacement, FinishJob
+from basicFunction.basicFunction import JobPlacement, FinishJob
 
 
 def NodeStart(NUM_Start_NODES, NUM_SLEEP_NODES, NUM_NODES, urgentJob, now, Nodes, event, startNodes, reservedNodes):

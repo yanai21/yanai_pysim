@@ -1,4 +1,4 @@
-from basicFunction import JobPlacement
+from basicFunction.basicFunction import JobPlacement
 from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm, DP
 from environment.class.system import nodeStartTime, writeBandwidth, idleEnergy_W, NUM_NODES, NUM_SLEEP_NODES
 from basicUrgentFunction.nodeStartAlgorithm import NodeStart

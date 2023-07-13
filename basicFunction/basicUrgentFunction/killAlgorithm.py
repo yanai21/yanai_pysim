@@ -1,4 +1,4 @@
-from basicFunction import JobPlacement
+from basicFunction.basicFunction import JobPlacement
 
 def DP(N,W,DataList,now):
     dp = [[0]*(W+1) for i in range(N+1)] # DPの配列作成

@@ -1,5 +1,5 @@
 import copy
-from basicFunction import JobPlacement
+from basicFunction.basicFunction import JobPlacement
 from model import PreemptionOverhead
 from environment.class.system import writeBandwidth, readBandwidth
 
