@@ -1,5 +1,5 @@
 #global変数を保管しておく
-Nodes = [[]]
+nodes = [[]]
 event = {}
 now = 0
 result=[]

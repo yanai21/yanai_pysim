@@ -1,10 +1,11 @@
-from jobClass import NormalJob,UrgentJob
+from environment.jobClass import NormalJob,UrgentJob
 from random import randint
-from testSystem import test1
+import os
+from environment.test.testSystem import testSystem
 normalJob_queue = []
 urgentJob_queue = []
 event = {} #[node番号管理]
-nodeMemory = test1.nodeMemory_mb
+nodeMemory = testSystem.nodeMemory_mb
 
 # #test用
 # 通常ジョブ作成

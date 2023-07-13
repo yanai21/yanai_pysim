@@ -1,11 +1,16 @@
-#配置関数
-def JobPlacement(now,use_nodes,empty_node,job,event,Nodes,popNum):
+#配置関数 (Nodesの追加、empty_nodeから取り出す、eventに追加)
+def JobPlacement(now,empty_node, job, event, Nodes, popNum):
     etime = job.etime
     job.status = "run"
     finish_time = now + etime
+    use_nodes = job.nodes
     for i in range(use_nodes):
         arrange_node_idx = empty_node.pop(popNum)
-        Nodes[arrange_node_idx].append(job)
+        if(Nodes[arrange_node_idx]==[]):
+            Nodes[arrange_node_idx].append(job)
+        else:
+            print("割り当て不可")
+            exit()
         #実行中のノードを書き込み
         job.runNode.append(arrange_node_idx)
         #start時刻の書き込み
@@ -36,6 +41,7 @@ def FinishJob(now,eventJob,Nodes,empty_node,result):
         elif(eventJob==node[0]):
             Nodes[idx]=[]
             empty_node.append(idx)
+    return empty_node
 
 #通常ジョブのみで実行する際の引数用
 def NormalJobPlacement():
