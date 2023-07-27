@@ -1,13 +1,14 @@
 from basicFunction.basicFunction import JobPlacement
-
+from basicFunction.countAvailableNode import countAvaiableNode
 # 通常ジョブ割り当て (割り当てられるか確認、割り当て関数呼び出し、待ちジョブから削除)
 
 
-def NormalJobAssignment(now, event, Nodes, empty_node, normalJob_queue):
+def NormalJobAssignment(now, event, Nodes,normalJob_queue):
     remove_idx = []
     for idx, job in enumerate(normalJob_queue):
         use_nodes = job.nodes
         # ノードが空いているかの確認
+        empty_node = countAvaiableNode(Nodes)
         available_num_node = len(empty_node)
         if available_num_node == 0:
             break
@@ -18,4 +19,4 @@ def NormalJobAssignment(now, event, Nodes, empty_node, normalJob_queue):
     # ジョブキューから配置したジョブを削除
     for idx in reversed(remove_idx):
         normalJob_queue.pop(idx)
-    return empty_node, normalJob_queue
+    return normalJob_queue

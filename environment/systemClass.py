@@ -2,14 +2,18 @@ class System:
     def __init__(self, systemNodes, sleep_ratio):
         # node関係
         self.systemNodes = systemNodes
-        self.sleepNodes = int(systemNodes *  sleep_ratio)
+        self.sleepNodes = int(systemNodes * sleep_ratio)
         self.nodeMemory_mb = 48 * 1024
-        #帯域幅
+        # 帯域幅
         self.writeBandwidth_mb = 5000
         self.readBandwidth_mb = 5000
-        #起動時間
+        # 起動時間
         self.nodeStartTime_s = 60
         self.nodeEndTime_s = 120
-        #電力
+        # 電力
         self.idleEnergy_w = 60
         self.executionEnergy_w = 210
+
+    def preemptionOverhead(memory, bandwidth):
+        overhead = memory // bandwidth
+        return overhead

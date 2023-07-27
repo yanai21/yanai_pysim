@@ -1,8 +1,6 @@
-class NormalJob():
-    def __init__(self,id,nodes, etime,memory):
+class NormalJob:
+    def __init__(self, id, nodes, etime, memory):
         self.type = "normal"
-        self.leftEtime = 0
-        self.eEndTime = 0
         self.id = id
         self.nodes = nodes
         self.etime = etime
@@ -10,20 +8,24 @@ class NormalJob():
         self.startTime = 0
         self.endTime = 0
         self.runNode = []
-        self.status = ""
-        self.method = []
-class UrgentJob():
-    def __init__(self, id,nodes, etime,memory,occurrenceTime,deadlineTime):
+        self.status = -1
+
+
+class UrgentJob:
+    def __init__(self, id, nodes, etime, memory, occurrenceTime, deadlineTime):
+        # 共通
         self.type = "urgent"
         self.id = id
         self.nodes = nodes
         self.etime = etime
         self.memory = memory
-        self.occurrenceTime = occurrenceTime
-        self.deadlineTime = deadlineTime
         self.startTime = 0
         self.endTime = 0
         self.runNode = []
-        self.totalPreemptionMemory=0
-        self.status = ""
-        self.method = []
+        self.status = -1
+        self.occurrenceTime = occurrenceTime
+        self.deadlineTime = deadlineTime
+        self.totalPreemptionMemory = 0
+        self.event = {}
+        self.preemptionJobs = []
+        self.startNodes = []

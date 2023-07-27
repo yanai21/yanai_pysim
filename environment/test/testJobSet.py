@@ -9,10 +9,10 @@ nodeMemory = testSystem.nodeMemory_mb
 
 # #test用
 # 通常ジョブ作成
-for i in range(100):
+for i in range(10):
     # id,nodes, etime,memory
-    nodes = randint(1,4)
-    etime = randint(100,1000)
+    nodes = i+1
+    etime = i+1
     memory = nodeMemory * nodes
     job_tmp = NormalJob(i + 1, nodes, etime, memory)
     normalJob_queue.append(job_tmp)

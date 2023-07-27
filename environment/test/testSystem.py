@@ -1,2 +1,2 @@
 from environment.systemClass import System
-testSystem = System(10,1)
+testSystem = System(10,0.1)
