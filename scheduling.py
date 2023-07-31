@@ -33,14 +33,14 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
         urgentJob_queue = []
         event = {}
     # 結果確認
-    print("normalJob_queue:{}".format(normalJob_queue))
-    print("urgentJob:{}".format(urgentJob_queue))
-    print("event:{}".format(event))
+    # print("normalJob_queue:{}".format(normalJob_queue))
+    # print("urgentJob:{}".format(urgentJob_queue))
+    # print("event:{}".format(event))
 
     LogNormalJob(name, normalJob_queue, urgentJob_queue)
 
     # 1回目
-    normalJob_queue = NormalJobAssignment(now, event, Nodes, normalJob_queue)
+    NormalJobAssignment(now, event, Nodes, normalJob_queue)
     LogNodes(name, now, Nodes)
     # eventの並び替え
     event = sorted(event.items())
@@ -55,8 +55,12 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
         now = next(iter(event))
         eventJobs = event.pop(now)
         for eventJob in reversed(eventJobs):
-            FinishJob(now, eventJob, Nodes,result)
-        normalJob_queue = NormalJobAssignment(now, event, Nodes, normalJob_queue)
+            # 割り当て前の緊急ジョブ
+            if eventJob.type == "urgent" and eventJob.status == -1:
+                UrgentJobAssignment(Nodes, now, eventJob, event,normalJob_queue,environment.system)
+            else:
+                FinishJob(now, eventJob, Nodes, result)
+        NormalJobAssignment(now, event, Nodes, normalJob_queue)
         LogNodes(name, now, Nodes)
     #         # 起動によってできるイベント
     #         if eventJob == "nodeStart":

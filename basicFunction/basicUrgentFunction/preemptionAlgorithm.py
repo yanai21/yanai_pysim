@@ -1,7 +1,5 @@
 import copy
 from basicFunction.basicFunction import JobPlacement
-from model import PreemptionOverhead
-from environment.class.system import writeBandwidth, readBandwidth
 
 
 # DPの計算

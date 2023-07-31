@@ -14,6 +14,6 @@ class System:
         self.idleEnergy_w = 60
         self.executionEnergy_w = 210
 
-    def preemptionOverhead(memory, bandwidth):
+    def preemptionOverhead(self,memory, bandwidth):
         overhead = memory // bandwidth
         return overhead
