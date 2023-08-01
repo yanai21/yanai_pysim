@@ -10,7 +10,9 @@ def PreemptionPriorityAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, 
     for i in range(NUM_NEED_NODES, len(dp[-1])):
         if dp[-1][i] != 0:
             NUM_NODES_Preemption = i
-            overheadTime = system.PreemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
+            overheadTime = system.preemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
             break
     NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
+    # idleノードが負の数になる可能性がある
+    NUM_NODES_Idle = max(0, NUM_NODES_Idle)
     return NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle, overheadTime

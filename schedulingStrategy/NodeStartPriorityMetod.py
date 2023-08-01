@@ -1,5 +1,5 @@
 # 緊急ジョブの割り当て
-def NodeStartPriorityAlgorithm(urgentJob,available_num_node,NUM_SLEEP_NODES,NUM_NODES,dp,system):
+def NodeStartPriorityAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, NUM_NODES, dp, system):
     # 中断とノード起動のノード数を管理
     NUM_NODES_Preemption = 0
     NUM_NODES_NodeStart = 0
@@ -22,4 +22,6 @@ def NodeStartPriorityAlgorithm(urgentJob,available_num_node,NUM_SLEEP_NODES,NUM_
                 )
                 break
     NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
-    return NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle,overheadTime
+    # idleノードが負の数になる可能性がある
+    NUM_NODES_Idle = max(0, NUM_NODES_Idle)
+    return NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle, overheadTime

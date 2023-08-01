@@ -1,8 +1,9 @@
-### 構成
-*** 変数 ***
-- グローバル
-    - Nodes,now,event
-- ローカル
-    - Result,normalJob_queue,urgentJob_queue
-    - Nodes (preemption,start,reserved,empty)
-    - jobs (preemption)
+## test
+### test1
+- 緊急ジョブ発生時に空きノードがある
+### test2
+- 緊急ジョブ発生時に全てのノードが埋まっている
+- 中断対象として、1ノードのみ使っているジョブはない
+### test3
+- 緊急ジョブ発生時に全てのノードが埋まっている
+- 中断対象として、1ノードのみ使っているジョブがある
