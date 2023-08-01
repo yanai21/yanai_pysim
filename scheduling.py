@@ -5,6 +5,8 @@ from log.log import LogNormalJob, LogNodes, LogResult
 from basicFunction.normalJobAssignment import NormalJobAssignment
 from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
+from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown,NodeShutdownFinish
+from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 
 
 # スケジューリング
@@ -58,9 +60,37 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
                 UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system)
-                print(eventJob.event)
+                # print(eventJob.event)
+            # 実行前の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == 0:
-                print("aaa")
+                for urgent_event in eventJob.event[now]:
+                    if urgent_event == "NodeStartFinish":
+                        NodeStartFinish(eventJob)
+                    elif urgent_event == "urgentJobStart":
+                        UrgentJobPlacement(now, eventJob, event)
+                    elif urgent_event == "preemptionFinish":
+                        print(3, urgent_event)
+                        # PreemptionFinish(Nodes, preemptionNodes)
+                    else:
+                        print("変なイベントが緊急ジョブに投入されている")
+            # 実行終了後の緊急ジョブ
+            elif eventJob.type == "urgent" and eventJob.status == 1:
+                FinishJob(now, eventJob, Nodes, result)
+                # 中断を使ったかどうか
+                if len(eventJob.preemptionJobs) != 0:
+                    print("中断を使ったよ")
+                if len(eventJob.startNodes) != 0:
+                    print("ノード起動を使ったよ")
+                    NodeShutdown(eventJob, Nodes, event, now, environment.system)
+            elif eventJob.type == "urgent" and eventJob.status == 2:
+                for urgent_event in eventJob.event[now]:
+                    if urgent_event == "NodeShutdownFinish":
+                        NodeShutdownFinish(eventJob)
+                    elif urgent_event == "preemptionFinish":
+                        print(3, urgent_event)
+                        # PreemptionFinish(Nodes, preemptionNodes)
+                    else:
+                        print("変なイベントが緊急ジョブに投入されている")
             else:
                 FinishJob(now, eventJob, Nodes, result)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)

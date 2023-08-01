@@ -22,23 +22,22 @@ def JobPlacement(now, empty_node, job, event, Nodes, popNum):
 
 
 # 終了したジョブ動作
-def FinishJob(now, eventJob, Nodes,result):
-    if(eventJob.status ==1):
+def FinishJob(now, eventJob, Nodes, result):
+    if eventJob.status == 1:
         # 終了時刻記入
         eventJob.endTime = now
         eventJob.status = 2
-        runNodes =[]
+        runNodes = []
         for node in eventJob.runNode:
             runNodes.append(node.id)
         # 結果書き込み
-        result.append(
-            [eventJob.id, eventJob.startTime, eventJob.endTime, runNodes, eventJob.status]
-        )
+        result.append([eventJob.id, eventJob.startTime, eventJob.endTime, runNodes, eventJob.status])
         # Nodesから取り除く
         for node in eventJob.runNode:
             node.status = 0
     else:
-        print("startしていないジョブです")
+        print(eventJob.status)
+        print("終了できないジョブです")
         exit()
 
 

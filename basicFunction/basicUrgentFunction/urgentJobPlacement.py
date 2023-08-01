@@ -1,17 +1,22 @@
-def UrgentJobPlacement(now, urgentJob, Nodes, event, reservedNodes):
-    etime = urgentJob.etime
-    finish_time = now + etime
-    urgentJob.startTime = now
-    urgentJob.eEndTime = finish_time
-    urgentJob.status = "run"
-    for idx in reservedNodes:
-        Nodes[idx] = [urgentJob]
-    try:
-        event[finish_time].append(urgentJob)
-    except:
-        event[finish_time] = [urgentJob]
-    reservedNodes = []
-    return reservedNodes
+def UrgentJobPlacement(now, urgentJob,event):
+    if urgentJob.status == 0:
+        etime = urgentJob.etime
+        finish_time = now + etime
+        urgentJob.startTime = now
+        urgentJob.status = 1
+        for node in urgentJob.runNode:
+            if node.status ==2:
+                node.status =1
+            else:
+                print("予約されたジョブを実行できない")
+                exit()
+        try:
+            event[finish_time].append(urgentJob)
+        except:
+            event[finish_time] = [urgentJob]
+    else:
+        print("予約されたジョブを実行できない")
+        exit()
 
 
 def UrgentReserve(urgentJob, Nodes, event, finishtime, now):
