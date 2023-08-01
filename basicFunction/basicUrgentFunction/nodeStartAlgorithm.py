@@ -1,25 +1,25 @@
-from environment.class.system import nodeStartTime, idleEnergy_W, nodeEndTime
 from basicFunction.basicFunction import JobPlacement, FinishJob
 
 
-def NodeStart(NUM_Start_NODES, NUM_SLEEP_NODES, NUM_NODES, urgentJob, now, Nodes, event, startNodes, reservedNodes):
-    if NUM_SLEEP_NODES >= NUM_Start_NODES:
-        # node起動を用いたことを加える
-        urgentJob.method.append("nodestart")
-        # イベントに追加
-        finishtime = now + nodeStartTime
-        try:
-            event[finishtime].afppend("nodeStart")
-        except:
-            event[finishtime] = ["nodeStart"]
-        for idx in range(NUM_NODES, NUM_NODES + NUM_Start_NODES):
-            Nodes.append(["nodeStart"])
-            startNodes.append(idx)
-        reservedNodes.extend(startNodes)
-    else:
-        print("ノード起動できません")
-        exit()
-    return startNodes, reservedNodes
+def NodeStart(urgentJob, Nodes, event, now, system):
+    for node in urgentJob.startNodes:
+        if node.status == -1:
+            finishtime = now + system.nodeStartTime_s
+            node.status == -21
+            urgentJob.runNode.append(node)
+            try:
+                urgentJob.event[finishtime].append("NodeStartFinish")
+                event[finishtime].append(urgentJob)
+            except:
+                urgentJob.event[finishtime] = ["NodeStartFinish"]
+                event[finishtime] = [urgentJob]
+            # for idx in range(NUM_NODES, NUM_NODES + NUM_Start_NODES):
+            #     Nodes.append(["nodeStart"])
+            #     startNodes.append(idx)
+            # reservedNodes.extend(startNodes)
+        else:
+            print("ノード起動できません")
+            exit()
 
 
 def NodeStartFinish(Nodes, reservedNodes, startNodes):

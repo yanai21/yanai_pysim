@@ -14,7 +14,7 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
         os.remove("./log/{}/Nodes.txt".format(name))
     except:
         pass
-    global nodes, now, event, result
+    global Nodes, now, event, result
     # ノード関係
     systemNodes = environment.system.systemNodes
     Nodes = [Node(id, 0) for id in range(systemNodes)]
@@ -57,7 +57,10 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
         for eventJob in reversed(eventJobs):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
-                UrgentJobAssignment(Nodes, now, eventJob, event,normalJob_queue,environment.system)
+                UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system)
+                print(eventJob.event)
+            elif eventJob.type == "urgent" and eventJob.status == 0:
+                print("aaa")
             else:
                 FinishJob(now, eventJob, Nodes, result)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)

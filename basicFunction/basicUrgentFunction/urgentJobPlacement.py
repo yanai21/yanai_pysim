@@ -1,8 +1,8 @@
-def UrgentJobPlacement(now,urgentJob,Nodes,event,reservedNodes):
+def UrgentJobPlacement(now, urgentJob, Nodes, event, reservedNodes):
     etime = urgentJob.etime
     finish_time = now + etime
-    urgentJob.startTime=now
-    urgentJob.eEndTime=finish_time
+    urgentJob.startTime = now
+    urgentJob.eEndTime = finish_time
     urgentJob.status = "run"
     for idx in reservedNodes:
         Nodes[idx] = [urgentJob]
@@ -13,7 +13,8 @@ def UrgentJobPlacement(now,urgentJob,Nodes,event,reservedNodes):
     reservedNodes = []
     return reservedNodes
 
-def UrgentReserve(urgentJob, empty_node, Nodes, event, reservedNodes, finishtime):
+
+def UrgentReserve(urgentJob, Nodes, event, finishtime, now):
     # urgentNodesのStatusの変更
     etime = urgentJob.etime
     use_nodes = urgentJob.nodes
