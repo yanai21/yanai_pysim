@@ -9,7 +9,7 @@ from basicFunction.countNode import countNode
 
 
 # 緊急ジョブの割り当て
-def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, UrgentJobStrategy):
+def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, UrgentJobStrategy,result):
     # ノードの確認
     empty_node = countNode(Nodes, 0)
     available_num_node = len(empty_node)
@@ -43,9 +43,9 @@ def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, U
         # urgentJobのstatusの変更
         urgentJob.status = 0
         # # Preemption
-        # if NUM_NODES_Preemption != 0:
-        #     urgentJob.preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-        #     PreemptionAlgorithm(urgentJob, Nodes, now, event, preemptionJobs, preemptionNodes, result, reservedNodes)
+        if NUM_NODES_Preemption != 0:
+            urgentJob.preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
+            PreemptionAlgorithm(urgentJob, Nodes, now, event,result,system)
         # NodeStart
         if NUM_NODES_NodeStart != 0:
             # 起動するノードリストを作成

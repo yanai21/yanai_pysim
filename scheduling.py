@@ -59,7 +59,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         for eventJob in reversed(eventJobs):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
-                UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system,UrgentJobStrategy)
+                UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system,UrgentJobStrategy,result)
                 # print(eventJob.event)
             # 実行前の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == 0:

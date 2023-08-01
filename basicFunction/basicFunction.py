@@ -23,10 +23,13 @@ def JobPlacement(now, empty_node, job, event, Nodes, popNum):
 
 # 終了したジョブ動作
 def FinishJob(now, eventJob, Nodes, result):
-    if eventJob.status == 1:
+    #3は中断対象のジョブの結果を書き込む場合
+    if eventJob.status == 1 or eventJob.status == 3:
+        # 普通の書き込み時
+        if eventJob.status == 1:
+            eventJob.status = 2
         # 終了時刻記入
         eventJob.endTime = now
-        eventJob.status = 2
         runNodes = []
         for node in eventJob.runNode:
             runNodes.append(node.id)
