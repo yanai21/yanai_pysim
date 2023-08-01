@@ -7,10 +7,10 @@ from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
 from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown,NodeShutdownFinish
 from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
-
+from basicFunction.basicUrgentFunction.urgentJobAssignment import UrgentJobAssignment
 
 # スケジューリング
-def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
+def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # 前回のログを消すために必要
     try:
         os.remove("./log/{}/Nodes.txt".format(name))
@@ -59,7 +59,7 @@ def scheduling(name, UrgentFlag, UrgentJobAssignment, environment):
         for eventJob in reversed(eventJobs):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
-                UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system)
+                UrgentJobAssignment(Nodes, now, eventJob, event, normalJob_queue, environment.system,UrgentJobStrategy)
                 # print(eventJob.event)
             # 実行前の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == 0:
