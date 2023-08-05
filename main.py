@@ -1,3 +1,4 @@
+from evaluation.gragh import MakeSpanGragh,ElectricPowerGragh
 if __name__ == "__main__":
     # print("提案手法")
     # main(True,ProposedUrgentJobAssignment)
