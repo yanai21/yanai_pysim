@@ -32,7 +32,6 @@ def NodeShutdown(urgentJob, Nodes, event, now, system):
         if node.status == 0:
             finishtime = now + system.nodeEndTime_s
             node.status = -22
-            urgentJob.runNode.append(node)
             try:
                 urgentJob.event[finishtime].append("NodeShutdownFinish")
                 event[finishtime].append(urgentJob)

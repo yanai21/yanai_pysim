@@ -5,7 +5,7 @@ from log.log import LogNormalJob, LogNodes, LogResult
 from basicFunction.normalJobAssignment import NormalJobAssignment
 from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
-from basicFunction.basicUrgentFunction.preemptionAlgorithm import PreemptionFinish
+from basicFunction.basicUrgentFunction.preemptionAlgorithm import PreemptionFinish,PreemptionRecover,PreemptionRecoverFinish
 from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown,NodeShutdownFinish
 from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 from basicFunction.basicUrgentFunction.urgentJobAssignment import UrgentJobAssignment
@@ -78,16 +78,15 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                 FinishJob(now, eventJob, Nodes, result)
                 # 中断を使ったかどうか
                 if len(eventJob.preemptionJobs) != 0:
-                    print("中断を使ったよ")
+                    PreemptionRecover(eventJob,event, now, environment.system)
                 if len(eventJob.startNodes) != 0:
                     NodeShutdown(eventJob, Nodes, event, now, environment.system)
             elif eventJob.type == "urgent" and eventJob.status == 2:
                 for urgent_event in eventJob.event[now]:
                     if urgent_event == "NodeShutdownFinish":
                         NodeShutdownFinish(eventJob)
-                    elif urgent_event == "preemptionFinish":
-                        print(3, urgent_event)
-                        # PreemptionFinish(Nodes, preemptionNodes)
+                    elif urgent_event == "preemptionRecoverFinish":
+                        PreemptionRecoverFinish(eventJob, now, event)
                     else:
                         print("変なイベントが緊急ジョブに投入されている")
             else:

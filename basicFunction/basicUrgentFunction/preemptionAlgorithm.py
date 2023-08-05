@@ -2,6 +2,7 @@ import copy
 from basicFunction.basicFunction import JobPlacement
 from basicFunction.basicFunction import FinishJob
 
+
 # DPの計算
 def DP(N, W, DataList):
     dp = [[0] * (W + 1) for i in range(N + 1)]  # DPの配列作成
@@ -59,7 +60,7 @@ def DP(N, W, DataList):
     return dp, BreakDP
 
 
-def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
+def PreemptionAlgorithm(urgentJob, Nodes, now, event, result, system):
     # 実行中のジョブを中断していく
     for preemptionJob in urgentJob.preemptionJobs:
         if preemptionJob.status == 1:
@@ -68,18 +69,18 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
             # 結果の書き込み
             preemptionJob.status = 3
             FinishJob(now, preemptionJob, Nodes, result)
-            #eventから中断対象を削除
+            # eventから中断対象を削除
             estimated_endTime = preemptionJob.startTime + preemptionJob.etime
             event_tmp = event[estimated_endTime]
             event_tmp.remove(preemptionJob)
             event[estimated_endTime] = event_tmp
-            #中断対象の残り時間を計測
+            # 中断対象の残り時間を計測
             leftEtime = preemptionJob.etime - now
             preemptionJob.etime = leftEtime
             ## 緊急ジョブのrunNodeの追加
             for node in preemptionJob.runNode:
                 if node.status == 0:
-                    node.status =21
+                    node.status = 21
                     urgentJob.runNode.append(node)
                 else:
                     print("中断できません")
@@ -87,7 +88,7 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
         else:
             print("実行されていないジョブです")
             exit()
-        #eventの追加
+        # eventの追加
         finishtime = now + system.preemptionOverhead(urgentJob.totalPreemptionMemory, system.writeBandwidth_mb)
         try:
             urgentJob.event[finishtime].append("preemptionFinish")
@@ -95,46 +96,6 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
         except:
             urgentJob.event[finishtime] = ["preemptionFinish"]
             event[finishtime] = [urgentJob]
-    # preemptionNodes = []
-    # urgentJob.method.append("preemption")
-    # #緊急ジョブ
-    # for preemptionJob in preemptionJobs:
-    #     # 終了時刻記入
-    #     preemptionJob.endTime = now
-    #     # statusの変更
-    #     preemptionJob.status = "preemptionJob"
-    #     # 結果書き込み
-    #     result.append(
-    #         [
-    #             preemptionJob.id,
-    #             preemptionJob.startTime,
-    #             preemptionJob.endTime,
-    #             preemptionJob.runNode,
-    #             preemptionJob.status,
-    #             preemptionJob.method,
-    #         ]
-    #     )
-    #     # 残り時間の計測
-    #     preemptionJob.leftEtime = preemptionJob.etime - now
-    #     event_tmp = event[preemptionJob.eEndTime]
-    #     event_tmp.remove(preemptionJob)
-    #     event[preemptionJob.eEndTime] = event_tmp
-    #     preemptionNodes.extend(preemptionJob.runNode)
-    #     # 中断に要する時間を計測
-    #     urgentJob.totalPreemptionMemory += preemptionJob.memory
-    # # イベントに追加
-    # finishtime = now + PreemptionOverhead(urgentJob.totalPreemptionMemory, writeBandwidth)
-    # try:
-    #     event[finishtime].afppend("preemption")
-    # except:
-    #     event[finishtime] = ["preemption"]
-    # # Nodesから取り除く
-    # for idx in reversed(preemptionNodes):
-    #     # eventの追加
-    #     # Nodesに中断中と明記
-    #     Nodes[idx] = ["preemption"]
-    # reservedNodes.extend(preemptionNodes)
-    # return preemptionJobs, preemptionNodes, reservedNodes
 
 
 def PreemptionFinish(urgentJob):
@@ -147,35 +108,41 @@ def PreemptionFinish(urgentJob):
                 exit()
 
 
-def PreemptionRecover(eventJob, Nodes, now, preemptionNodes, event, empty_node):
+def PreemptionRecover(urgentJob, event, now, system):
     # 復帰時間
-    recover_time = PreemptionOverhead(eventJob.totalPreemptionMemory, readBandwidth)
-    for idx in preemptionNodes:
-        Nodes[idx] = ["recover"]
-        empty_node.remove(idx)
-    finish_time = now + recover_time
-    try:
-        event[finish_time].append("recover")
-    except:
-        event[finish_time] = ["recover"]
-    event = sorted(event.items())
-    event = dict((x, y) for x, y in event)
-    preemptionNodes = []
+    finishtime = now + system.preemptionOverhead(urgentJob.totalPreemptionMemory, system.readBandwidth_mb)
+    for preemptionJob in urgentJob.preemptionJobs:
+        for node in preemptionJob.runNode:
+            if node.status == 0:
+                node.status = 22
+                try:
+                    urgentJob.event[finishtime].append("preemptionRecoverFinish")
+                    event[finishtime].append(urgentJob)
+                except:
+                    urgentJob.event[finishtime] = ["preemptionRecoverFinish"]
+                    event[finishtime] = [urgentJob]
+            else:
+                print("中断ジョブを復帰できません")
+                exit()
 
 
-def PreemptionRecoverFinish(Nodes, now, preemptionJobs, event):
-    for preemptionJob in preemptionJobs:
-        preemptionJob.status = "run"
-        preemptionJob.startTime = now
-        for idx in preemptionJob.runNode:
-            Nodes[idx] = [preemptionJob]
-        finish_time = preemptionJob.startTime + preemptionJob.leftEtime
-        try:
-            event[finish_time].append(preemptionJob)
-        except:
-            event[finish_time] = [preemptionJob]
-        event = sorted(event.items())
-        event = dict((x, y) for x, y in event)
-        # print(event)
-    preemptionJobs = []
-    return preemptionJobs, event
+def PreemptionRecoverFinish(urgentJob, now, event):
+    for preemptionJob in urgentJob.preemptionJobs:
+        etime = preemptionJob.etime
+        if preemptionJob.status == 3:
+            preemptionJob.startTime = now
+            preemptionJob.status = 1
+            finish_time = now + etime
+            for node in preemptionJob.runNode:
+                if node.status == 22:
+                    node.status =1
+                else:
+                    print("再開できません")
+                    exit()
+            try:
+                event[finish_time].append(preemptionJob)
+            except:
+                event[finish_time] = [preemptionJob]    
+        else:
+            print("正しく中断されていないジョブです")
+            exit()
