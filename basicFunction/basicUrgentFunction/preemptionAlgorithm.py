@@ -90,10 +90,10 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
         #eventの追加
         finishtime = now + system.preemptionOverhead(urgentJob.totalPreemptionMemory, system.writeBandwidth_mb)
         try:
-            urgentJob.event[finishtime].append("NodeStartFinish")
+            urgentJob.event[finishtime].append("preemptionFinish")
             event[finishtime].append(urgentJob)
         except:
-            urgentJob.event[finishtime] = ["NodeStartFinish"]
+            urgentJob.event[finishtime] = ["preemptionFinish"]
             event[finishtime] = [urgentJob]
     # preemptionNodes = []
     # urgentJob.method.append("preemption")
@@ -137,9 +137,14 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result,system):
     # return preemptionJobs, preemptionNodes, reservedNodes
 
 
-def PreemptionFinish(Nodes, preemptionNodes):
-    for idx in preemptionNodes:
-        Nodes[idx] = ["reserved"]
+def PreemptionFinish(urgentJob):
+    for preemptionJob in urgentJob.preemptionJobs:
+        for node in preemptionJob.runNode:
+            if node.status == 21:
+                node.status = 2
+            else:
+                print("中断終了できない")
+                exit()
 
 
 def PreemptionRecover(eventJob, Nodes, now, preemptionNodes, event, empty_node):
