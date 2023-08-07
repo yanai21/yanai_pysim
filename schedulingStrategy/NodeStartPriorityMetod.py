@@ -18,7 +18,7 @@ def NodeStartPriorityAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, N
                 NUM_NODES_Preemption = i
                 NUM_NODES_NodeStart = NUM_NEED_NODES - i
                 overheadTime = max(
-                    system.nodeStartTime_s, system.PreemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
+                    system.nodeStartTime_s, system.preemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
                 )
                 break
     NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
