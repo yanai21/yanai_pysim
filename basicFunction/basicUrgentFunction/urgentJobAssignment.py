@@ -54,7 +54,8 @@ def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, U
             NodeStart(urgentJob, Nodes, event, now, system)
         # idleNode
         if NUM_NODES_Idle != 0:
-            for i in range(use_nodes):
+            # print(len(empty_node))
+            for i in range(NUM_NODES_Idle):
                 assigned_node = empty_node.pop(0)
                 if assigned_node.status == 0:
                     assigned_node.status = 2

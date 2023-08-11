@@ -7,19 +7,20 @@ def NodeStart(urgentJob, Nodes, event, now, system):
             finishtime = now + system.nodeStartTime_s
             node.status = -21
             urgentJob.runNode.append(node)
-            try:
-                urgentJob.event[finishtime].append("NodeStartFinish")
-                event[finishtime].append(urgentJob)
-            except:
-                urgentJob.event[finishtime] = ["NodeStartFinish"]
-                event[finishtime] = [urgentJob]
         else:
             print("ノード起動できません")
             exit()
+    try:
+        urgentJob.event[finishtime].append("NodeStartFinish")
+        event[finishtime].append(urgentJob)
+    except:
+        urgentJob.event[finishtime] = ["NodeStartFinish"]
+        event[finishtime] = [urgentJob]
 
 
 def NodeStartFinish(urgentJob):
     for node in urgentJob.startNodes:
+        print(node.status)
         if node.status == -21:
             node.status = 2
         else:
@@ -32,15 +33,16 @@ def NodeShutdown(urgentJob, Nodes, event, now, system):
         if node.status == 0:
             finishtime = now + system.nodeEndTime_s
             node.status = -22
-            try:
-                urgentJob.event[finishtime].append("NodeShutdownFinish")
-                event[finishtime].append(urgentJob)
-            except:
-                urgentJob.event[finishtime] = ["NodeShutdownFinish"]
-                event[finishtime] = [urgentJob]
         else:
-            print("ノードシャットダウンできません")
+            print("ノード起動できません")
             exit()
+    try:
+        urgentJob.event[finishtime].append("NodeShutdownFinish")
+        event[finishtime].append(urgentJob)
+    except:
+        urgentJob.event[finishtime] = ["NodeShutdownFinish"]
+        event[finishtime] = [urgentJob]
+
 
 
 def NodeShutdownFinish(urgentJob):
