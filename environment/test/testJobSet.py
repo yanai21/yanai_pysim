@@ -20,7 +20,10 @@ def read_NormalJob(file):
                 id = int(joblist[0])
                 nodes = int(joblist[1])
                 etime = int(joblist[2])
-                memory = nodeMemory * nodes
+                try:
+                    memory = int(joblist[3])
+                except:
+                    memory = nodeMemory * nodes
                 job_tmp = NormalJob(id, nodes, etime, memory)
                 normalJob_queue.append(job_tmp)
         return normalJob_queue

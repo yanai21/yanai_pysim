@@ -12,6 +12,7 @@ def NodeStartPriorityAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, N
         NUM_NODES_NodeStart = NUM_NEED_NODES
         overheadTime = system.nodeStartTime_s
     else:
+        print(NUM_SLEEP_NODES)
         NUM_NODES_NodeStart = NUM_SLEEP_NODES
         for i in range(NUM_NEED_NODES - NUM_SLEEP_NODES, NUM_NODES - NUM_SLEEP_NODES + 1):
             if dp[-1][i] != 0:
@@ -22,6 +23,7 @@ def NodeStartPriorityAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, N
                 )
                 break
     NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
-    # idleノードが負の数になる可能性がある
+    # idleノードが負の数になる可能性がある (nodeStartも！)
     NUM_NODES_Idle = max(0, NUM_NODES_Idle)
+    NUM_NODES_NodeStart = max(0,NUM_NODES_NodeStart)
     return NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle, overheadTime
