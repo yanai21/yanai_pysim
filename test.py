@@ -9,11 +9,12 @@ from environment.testEnvironment import (
     test3_environment,
     test4_environment,
     test5_environment,
-    aoba_test1_environment
+    aoba_test1_environment,
+    aoba_test2_environment
 )
 from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh
 
-environment = test5_environment
+environment = aoba_test2_environment
 print("中断優先")
 preemptionMakespan, preemptionElectricPowerResult = scheduling(
     "preemption", True, PreemptionPriorityAlgorithm, environment

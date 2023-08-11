@@ -18,6 +18,7 @@ from evaluation.evaluation import ElectricPower, Makespan
 
 # スケジューリング
 def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
+    # print(environment.system.sleepNodes)
     # 前回のログを消すために必要
     try:
         os.remove("./log/{}/Nodes.txt".format(name))

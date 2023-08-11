@@ -20,7 +20,6 @@ def NodeStart(urgentJob, Nodes, event, now, system):
 
 def NodeStartFinish(urgentJob):
     for node in urgentJob.startNodes:
-        print(node.status)
         if node.status == -21:
             node.status = 2
         else:
