@@ -12,17 +12,18 @@ from environment.testEnvironment import (
     aoba_test1_environment,
     aoba_test2_environment
 )
-from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh
+from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh,EnergyConsumptionGragh
 
-environment = aoba_test2_environment
+environment = aoba_test1_environment
 print("中断優先")
-preemptionMakespan, preemptionElectricPowerResult = scheduling(
+preemptionMakespan, preemptionElectricPowerResult,preemptionEnergyConsumption = scheduling(
     "preemption", True, PreemptionPriorityAlgorithm, environment
 )
 print("ノード起動優先")
-nodeStartMakespan, nodeStartElectricPowerResult = scheduling("nodeStart", True, NodeStartPriorityAlgorithm, environment)
+nodeStartMakespan, nodeStartElectricPowerResult,nodeStartEnergyConsumption = scheduling("nodeStart", True, NodeStartPriorityAlgorithm, environment)
 print("通常ジョブのみ")
-normalJobMakespan, normalJobElectricPowerResult = scheduling("normalJob", False, NormalJobPlacement, environment)
+normalJobMakespan, normalJobElectricPowerResult,normalJobEnergyConsumption = scheduling("normalJob", False, NormalJobPlacement, environment)
 # グラフ
 MakeSpanGragh(normalJobMakespan, preemptionMakespan, nodeStartMakespan)
 ElectricPowerGragh(normalJobElectricPowerResult, preemptionElectricPowerResult, nodeStartElectricPowerResult)
+EnergyConsumptionGragh(normalJobEnergyConsumption,preemptionEnergyConsumption,nodeStartEnergyConsumption)

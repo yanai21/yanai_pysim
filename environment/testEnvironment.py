@@ -4,21 +4,21 @@ current_path = os.getcwd()
 print(current_path)
 
 from environment.environmentClass import Environment
-from environment.test.testSystem import testSystem,aoba_testSystem_middle,aoba_testSystem
-from environment.test.testJobSet import read_NormalJob,read_UrgentJob
+from environment.test.testSystem import testSystem, aoba_testSystem_middle, aoba_testSystem
+from environment.readJobSet import read_NormalJob, read_UrgentJob
 
-test1_normalJob_queue = read_NormalJob("test1")
-test2_normalJob_queue = read_NormalJob("test2")
-test3_normalJob_queue = read_NormalJob("test3")
-test4_normalJob_queue = read_NormalJob("test4")
-test5_normalJob_queue = read_NormalJob("test5")
-test6_normalJob_queue = read_NormalJob("test6")
+test1_normalJob_queue = read_NormalJob("test", "test1")
+test2_normalJob_queue = read_NormalJob("test", "test2")
+test3_normalJob_queue = read_NormalJob("test", "test3")
+test4_normalJob_queue = read_NormalJob("test", "test4")
+test5_normalJob_queue = read_NormalJob("test", "test5")
+test6_normalJob_queue = read_NormalJob("test", "test6")
 
-test1_urgentJob_queue,test1_event = read_UrgentJob("test1")
-test2_urgentJob_queue,test2_event = read_UrgentJob("test2")
-test3_urgentJob_queue,test3_event = read_UrgentJob("test3")
-test4_urgentJob_queue,test4_event = read_UrgentJob("test4")
-test5_urgentJob_queue,test5_event = read_UrgentJob("test5")
+test1_urgentJob_queue, test1_event = read_UrgentJob("test", "test1")
+test2_urgentJob_queue, test2_event = read_UrgentJob("test", "test2")
+test3_urgentJob_queue, test3_event = read_UrgentJob("test", "test3")
+test4_urgentJob_queue, test4_event = read_UrgentJob("test", "test4")
+test5_urgentJob_queue, test5_event = read_UrgentJob("test", "test5")
 
 test1_environment = Environment(testSystem, test1_normalJob_queue, test1_urgentJob_queue, test1_event)
 test2_environment = Environment(testSystem, test2_normalJob_queue, test1_urgentJob_queue, test1_event)

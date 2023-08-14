@@ -13,7 +13,7 @@ from basicFunction.basicUrgentFunction.preemptionAlgorithm import (
 from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown, NodeShutdownFinish
 from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 from basicFunction.basicUrgentFunction.urgentJobAssignment import UrgentJobAssignment
-from evaluation.evaluation import ElectricPower, Makespan
+from evaluation.evaluation import ElectricPower, Makespan, EnergyConsumption
 
 
 # スケジューリング
@@ -102,12 +102,13 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                 FinishJob(now, eventJob, Nodes, result)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)
         LogNodes(name, now, Nodes)
-        # 最大電力を計算
+        # 電力を計算
         electricPowerResult = ElectricPower(electricPowerResult, now, Nodes, environment.system)
+        energyConsumption = EnergyConsumption(electricPowerResult)
     # for tmp in result:
     #     if tmp[0] < 0:
     #         print(tmp)
     # # print(result)
     LogResult(name, result)
     makespan = Makespan(result)
-    return makespan, electricPowerResult
+    return makespan, electricPowerResult, energyConsumption

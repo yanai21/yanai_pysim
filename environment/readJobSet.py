@@ -7,8 +7,8 @@ nodeMemory = testSystem.nodeMemory_mb
 
 
 # #test用
-def read_NormalJob(file):
-    with open("environment/test/data/normalJob/{}_normalJob.txt".format(file)) as f:
+def read_NormalJob(folder,file):
+    with open("environment/{}/data/normalJob/{}_normalJob.txt".format(folder,file)) as f:
         normalJob_queue = []
         datas = f.readlines()
         for data in datas:
@@ -29,8 +29,8 @@ def read_NormalJob(file):
         return normalJob_queue
 
 
-def read_UrgentJob(file):
-    with open("environment/test/data/urgentJob/{}_urgentJob.txt".format(file)) as f:
+def read_UrgentJob(folder,file):
+    with open("environment/{}/data/urgentJob/{}_urgentJob.txt".format(folder,file)) as f:
         urgentJob_queue = []
         event = {}
         datas = f.readlines()
@@ -55,24 +55,3 @@ def read_UrgentJob(file):
                     event[job_tmp.occurrenceTime] = [job_tmp]
         return urgentJob_queue, event
 
-
-# # 通常ジョブ作成
-# for i in range(10):
-#     # id,nodes, etime,memory
-#     nodes = randint(1,4)
-#     etime = randint(1,4)
-#     memory = nodeMemory * nodes
-#     job_tmp = NormalJob(i + 1, nodes, etime, memory)
-#     normalJob_queue.append(job_tmp)
-
-# # 緊急ジョブ作成
-# for i in range(1):
-#     # id,nodes, etime,memory,occurrenceTime,deadlineTime
-#     occurrenceTime = 10 + 3600 * i
-#     job_tmp = UrgentJob(-(i + 1), 1, 600, i, occurrenceTime, occurrenceTime + 600)
-#     urgentJob_queue.append(job_tmp)
-#     # 緊急ジョブの発生時刻をeventに追加
-#     try:
-#         event[job_tmp.occurrenceTime].append(job_tmp)
-#     except:
-#         event[job_tmp.occurrenceTime] = [job_tmp]
