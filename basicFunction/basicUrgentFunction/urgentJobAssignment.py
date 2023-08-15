@@ -33,7 +33,7 @@ def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, U
         dp, breakdp = DP(len(jobList), NUM_NODES, jobList)
         # アルゴリズム
         NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle, overheadTime = UrgentJobStrategy(
-            urgentJob, available_num_node, NUM_SLEEP_NODES, NUM_NODES, dp, system
+            urgentJob, available_num_node, NUM_SLEEP_NODES, NUM_NODES, dp, system,breakdp,jobList
         )
         print("PreemptionNodes:{}".format(NUM_NODES_Preemption))
         print("NodeStartNodes:{}".format(NUM_NODES_NodeStart))
@@ -44,7 +44,6 @@ def UrgentJobAssignment(Nodes, now, urgentJob, event, normalJob_queue, system, U
         urgentJob.status = 0
         # # Preemption
         if NUM_NODES_Preemption != 0:
-            urgentJob.preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
             PreemptionAlgorithm(urgentJob, Nodes, now, event, result, system)
         # NodeStart
         if NUM_NODES_NodeStart != 0:
