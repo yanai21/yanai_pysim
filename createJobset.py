@@ -13,8 +13,8 @@ normalJobSet = "id,nodes,etime,memory"
 for i in range(100):
     #id,nodes, etime,memory
     id = i+1
-    nodes = randint(1,64)
-    etime = randint(100,1000)
+    nodes = randint(1,30)
+    etime = randint(100,500)
     memory = nodeMemory * nodes *  randint(30,70) // 100
     normalJobSet += "\n{},{},{},{}".format(id,nodes,etime,memory)
 #書き込み
@@ -23,12 +23,12 @@ with open("environment/{}/data/normalJob/{}_normalJob.txt".format(folder,normalJ
 
 #緊急ジョブ作成
 urgentJobSet = "id,nodes,etime,occurrenceTime,deadlineTime"
-for i in range(2):
+for i in range(1):
     #id,nodes, etime,memory,occurrenceTime,deadlineTime
-    occurrenceTime = 100 + 1000*i
+    occurrenceTime = 50 + 500*i
     id = - (i+1)
-    nodes = 64
-    etime = 600
+    nodes = 50
+    etime = 300
     deadlineTime = occurrenceTime + etime + 300
     urgentJobSet += "\n{},{},{},{},{}".format(id,nodes,etime,occurrenceTime,deadlineTime)
 #書き込み
