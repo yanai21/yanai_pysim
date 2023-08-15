@@ -13,18 +13,19 @@ from environment.testEnvironment import (
     aoba_test2_environment,
     aoba_tradeoff_environment
 )
-from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh,EnergyConsumptionGragh
+from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh,EnergyConsumptionGragh,deadlineRatioGragh
 
 environment = aoba_tradeoff_environment
 print("中断優先")
-preemptionMakespan, preemptionElectricPowerResult,preemptionEnergyConsumption = scheduling(
+preemptionMakespan, preemptionElectricPowerResult,preemptionEnergyConsumption,preemptionDeadlineRatio = scheduling(
     "preemption", True, PreemptionPriorityAlgorithm, environment
 )
 print("ノード起動優先")
-nodeStartMakespan, nodeStartElectricPowerResult,nodeStartEnergyConsumption = scheduling("nodeStart", True, NodeStartPriorityAlgorithm, environment)
+nodeStartMakespan, nodeStartElectricPowerResult,nodeStartEnergyConsumption,nodeStartDeadlineRatio = scheduling("nodeStart", True, NodeStartPriorityAlgorithm, environment)
 print("通常ジョブのみ")
-normalJobMakespan, normalJobElectricPowerResult,normalJobEnergyConsumption = scheduling("normalJob", False, NormalJobPlacement, environment)
+normalJobMakespan, normalJobElectricPowerResult,normalJobEnergyConsumption,normakJobDeadlineRatio = scheduling("normalJob", False, NormalJobPlacement, environment)
 # グラフ
 MakeSpanGragh(normalJobMakespan, preemptionMakespan, nodeStartMakespan)
 ElectricPowerGragh(normalJobElectricPowerResult, preemptionElectricPowerResult, nodeStartElectricPowerResult)
 EnergyConsumptionGragh(normalJobEnergyConsumption,preemptionEnergyConsumption,nodeStartEnergyConsumption)
+deadlineRatioGragh(preemptionDeadlineRatio,nodeStartDeadlineRatio)

@@ -13,7 +13,7 @@ from basicFunction.basicUrgentFunction.preemptionAlgorithm import (
 from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown, NodeShutdownFinish
 from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 from basicFunction.basicUrgentFunction.urgentJobAssignment import UrgentJobAssignment
-from evaluation.evaluation import ElectricPower, Makespan, EnergyConsumption
+from evaluation.evaluation import ElectricPower, Makespan, EnergyConsumption, deadlineRatio
 
 
 # スケジューリング
@@ -111,4 +111,8 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # # print(result)
     LogResult(name, result)
     makespan = Makespan(result)
-    return makespan, electricPowerResult, energyConsumption
+    if UrgentFlag == True:
+        deadlineratio = deadlineRatio(urgentJob_queue)
+    else:
+        deadlineratio = 0
+    return makespan, electricPowerResult, energyConsumption,deadlineratio

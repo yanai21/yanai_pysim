@@ -26,3 +26,13 @@ def ElectricPower(electricPowerResult, now, Nodes, system):
         for i in range(addNum + 1):
             electricPowerResult.append(electricPower)
     return electricPowerResult
+
+
+def deadlineRatio(urgentJob_queue):
+    count = 0
+    for urgentJob in urgentJob_queue:
+        if urgentJob.endTime <= urgentJob.deadlineTime:
+            count += 1
+    deadlineratio = count / len(urgentJob_queue)
+    deadlineratio *= 100
+    return deadlineratio
