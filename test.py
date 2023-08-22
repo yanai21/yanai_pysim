@@ -18,33 +18,33 @@ from environment.testEnvironment import (
 )
 from evaluation.gragh import MakeSpanGragh, ElectricPowerGragh, EnergyConsumptionGragh, deadlineRatioGragh
 
-environment = aoba_deploy1_environment
-print("中断優先")
-preemptionMakespan, preemptionElectricPowerResult, preemptionEnergyConsumption, preemptionDeadlineRatio = scheduling(
-    "preemption", True, PreemptionPriorityAlgorithm, environment
-)
+environment = aoba_test1_environment
+# print("中断優先")
+# preemptionMakespan, preemptionElectricPowerResult, preemptionEnergyConsumption, preemptionDeadlineRatio = scheduling(
+#     "preemption", True, PreemptionPriorityAlgorithm, environment
+# )
 print("ノード起動優先")
 nodeStartMakespan, nodeStartElectricPowerResult, nodeStartEnergyConsumption, nodeStartDeadlineRatio = scheduling(
     "nodeStart", True, NodeStartPriorityAlgorithm, environment
 )
-# print("通常ジョブのみ")
-# normalJobMakespan, normalJobElectricPowerResult, normalJobEnergyConsumption, normakJobDeadlineRatio = scheduling(
-#     "normalJob", False, NormalJobPlacement, environment
+print("通常ジョブのみ")
+normalJobMakespan, normalJobElectricPowerResult, normalJobEnergyConsumption, normakJobDeadlineRatio = scheduling(
+    "normalJob", False, NormalJobPlacement, environment
+)
+# print("ランダム選択手法")
+# randomMakespan, randomElectricPowerResult, randomEnergyConsumption, randomDeadlineRatio = scheduling(
+#     "random", True, RandomPreemptionAlgorithm, environment
 # )
-print("ランダム選択手法")
-randomMakespan, randomElectricPowerResult, randomEnergyConsumption, randomDeadlineRatio = scheduling(
-    "random", True, RandomPreemptionAlgorithm, environment
-)
-print("提案手法")
-proposedMakespan, proposedElectricPowerResult, proposedEnergyConsumption, proposedDeadlineRatio = scheduling(
-    "proposed", True, ProposedAlgorithm, environment
-)
-# # # グラフ
-MakeSpanGragh(proposedMakespan, randomMakespan, preemptionMakespan, nodeStartMakespan)
-# ElectricPowerGragh(
-#     proposedElectricPowerResult, randomElectricPowerResult, preemptionElectricPowerResult, nodeStartElectricPowerResult
+# print("提案手法")
+# proposedMakespan, proposedElectricPowerResult, proposedEnergyConsumption, proposedDeadlineRatio = scheduling(
+#     "proposed", True, ProposedAlgorithm, environment
 # )
-EnergyConsumptionGragh(
-    proposedEnergyConsumption, randomEnergyConsumption, preemptionEnergyConsumption, nodeStartEnergyConsumption
-)
-deadlineRatioGragh(proposedDeadlineRatio, randomDeadlineRatio, preemptionDeadlineRatio, nodeStartDeadlineRatio)
+# # # # グラフ
+# MakeSpanGragh(proposedMakespan, randomMakespan, preemptionMakespan, nodeStartMakespan)
+# # ElectricPowerGragh(
+# #     proposedElectricPowerResult, randomElectricPowerResult, preemptionElectricPowerResult, nodeStartElectricPowerResult
+# # )
+# EnergyConsumptionGragh(
+#     proposedEnergyConsumption, randomEnergyConsumption, preemptionEnergyConsumption, nodeStartEnergyConsumption
+# )
+# deadlineRatioGragh(proposedDeadlineRatio, randomDeadlineRatio, preemptionDeadlineRatio, nodeStartDeadlineRatio)

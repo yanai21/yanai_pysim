@@ -78,3 +78,4 @@ def deadlineRatioGragh(proposedmethod,randompreemption,preemption, nodeStart):
     # plt.legend(prop={"family": "MS Gothic"})
     plt.savefig("./result/deadlineratio.pdf")
     plt.show()
+

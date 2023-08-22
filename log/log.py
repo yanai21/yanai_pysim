@@ -39,6 +39,15 @@ def LogNodes(name, now, Nodes):
         file.write("[{}]\n".format(tmp))
 
 
+def NodeResult(now, Nodes, nodeResult):
+    for node in Nodes:
+        try:
+            nodeResult[now].append(node.status)
+        except:
+            nodeResult[now] = [node.status]
+    return nodeResult
+
+
 # 可視化用のツール
 def VisualizationJob(result):
     time_intervals = []
@@ -57,5 +66,17 @@ def VisualizationJob(result):
     plt.show()
 
 
-def VisualizationNode():
-    pass
+def VisualizationNode(nodeResult):
+    nodecolor = {-22: "g", -21: "g", -1: "w", 0: "k", 1: "y", 2: "k", 21: "r", 22: "r"}
+    past = 0
+    fig, ax = plt.subplots()
+    while len(nodeResult) != 0:
+        now = next(iter(nodeResult))
+        Nodes = nodeResult.pop(now)
+        for idx, node in enumerate(Nodes):
+            ax.barh(idx, width=(now - past), left=past, color=nodecolor[node])
+        past = now
+    plt.ylabel("Node")
+    plt.title("node status per time")
+    plt.tight_layout()
+    plt.show()

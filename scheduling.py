@@ -1,7 +1,7 @@
 import os
 import copy
 from environment.global_var import *
-from log.log import LogNormalJob, LogNodes, LogResult, VisualizationJob,VisualizationNode
+from log.log import LogNormalJob, LogNodes, LogResult, VisualizationJob, VisualizationNode,NodeResult
 from basicFunction.normalJobAssignment import NormalJobAssignment
 from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
@@ -33,6 +33,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # 結果用
     electricPowerResult = []
     result = []
+    nodeResult = {}
     # 現時刻
     now = 0
     normalJob_queue = copy.deepcopy(environment.normalJob_queue)
@@ -64,6 +65,10 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         # 終了ジョブをNodesから取り除く
         now = next(iter(event))
         eventJobs = event.pop(now)
+        # 電力を計算
+        electricPowerResult = ElectricPower(electricPowerResult, now, Nodes, environment.system)
+        # ノード状況を保存
+        nodeResult = NodeResult(now,Nodes,nodeResult)
         for eventJob in reversed(eventJobs):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
@@ -102,9 +107,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                 FinishJob(now, eventJob, Nodes, result)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)
         LogNodes(name, now, Nodes)
-        # 電力を計算
-        electricPowerResult = ElectricPower(electricPowerResult, now, Nodes, environment.system)
-        energyConsumption = EnergyConsumption(electricPowerResult)
+    energyConsumption = EnergyConsumption(electricPowerResult)
     # for tmp in result:
     #     if tmp[0] < 0:
     #         print(tmp)
@@ -117,6 +120,6 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         deadlineratio = 0
     # 単位時刻あたりのジョブ状況
     # VisualizationJob(result)
-    #単位時刻あたりのノード状況
-    VisualizationNode()
+    # 単位時刻あたりのノード状況
+    VisualizationNode(nodeResult)
     return makespan, electricPowerResult, energyConsumption, deadlineratio
