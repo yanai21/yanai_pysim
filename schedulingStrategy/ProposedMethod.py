@@ -1,64 +1,40 @@
-from basicFunction.basicFunction import JobPlacement
-from basicUrgentFunction.preemptionAlgorithm import PreemptionAlgorithm,DP
-from environment.class.system import nodeStartTime,writeBandwidth,idleEnergy_W,NUM_NODES,NUM_SLEEP_NODES
-from basicUrgentFunction.nodeStartAlgorithm import NodeStart
-from basicUrgentFunction.urgentJobReserve import UrgentReserve
-from model import PreemptionOverhead
-
-#緊急ジョブの割り当て
-def ProposedUrgentJobAssignment(Nodes,empty_node,preemptionJobs,startNodes,reservedNodes,preemptionNodes,now,urgentJob,event,result):
-    #ノードの確認
-    available_num_node = len(empty_node)
+# 緊急ジョブの割り当て
+def ProposedAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, NUM_NODES, dp, system, breakdp, jobList):
+    # 中断とノード起動のノード数を管理
+    NUM_NODES_Preemption = 0
+    NUM_NODES_NodeStart = 0
+    # 中断もしくは起動に要する時間
+    overheadTime = 0
     use_nodes = urgentJob.nodes
-    #Idleノードに割り当て
-    if available_num_node >= use_nodes:
-        JobPlacement(now,use_nodes,empty_node,urgentJob,event,Nodes,popNum=0)
-    #Idleノードに割り当てられない時
+    NUM_NEED_NODES = use_nodes - available_num_node
+    # 緊急ジョブの締切時間の確認
+    deadline = urgentJob.deadlineTime - (urgentJob.etime + urgentJob.occurrenceTime)
+    if system.nodeStartTime_s <= deadline:
+        if NUM_SLEEP_NODES < NUM_NEED_NODES:
+            NUM_NODES_NodeStart = NUM_SLEEP_NODES
+            # 足りない時はその分を中断で補う
+            for i in range(NUM_NEED_NODES - NUM_SLEEP_NODES, NUM_NODES - NUM_SLEEP_NODES + 1):
+                if dp[-1][i] != 0:
+                    NUM_NODES_Preemption = i
+                    NUM_NODES_NodeStart = NUM_NEED_NODES - i
+                    overheadTime = max(
+                        system.nodeStartTime_s, system.preemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
+                    )
+                    break
+        else:
+            NUM_NODES_NodeStart = NUM_NEED_NODES
+            overheadTime = system.nodeStartTime_s
+        NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
     else:
-        #中断とノード起動のノード数を管理
-        NUM_NODES_Preemption = 0
-        NUM_NODES_NodeStart = 0
-        #中断もしくは起動に要する時間
-        overheadTime = 0
-        #中断に要するテーブルの作成
-        #Nodesから投入されているジョブリストを作成
-        jobSet = set()
-        for job in Nodes:
-            try:
-                jobSet.add(job[0])
-            except:
-                pass
-        jobList = list(jobSet)
-        dp,breakdp=DP(len(jobList),NUM_NODES,jobList)
-        #必要なノード数の把握
-        NUM_NEED_NODES = use_nodes - available_num_node
-        #全探索
-        for i in range(NUM_SLEEP_NODES+1):
-            if(i==0):
-                for j in range(NUM_NEED_NODES,NUM_NODES+1):
-                    if(dp[-1][j]!=0):
-                        NUM_NODES_Preemption = j
-                        overheadTime = PreemptionOverhead(dp[-1][j],writeBandwidth)
-                        break
-            else:
-                tmpOverheadTime = max(nodeStartTime,PreemptionOverhead(dp[-1][NUM_NEED_NODES - i],writeBandwidth))
-                if(tmpOverheadTime <overheadTime):
-                    overheadTime = tmpOverheadTime
-                    NUM_NODES_NodeStart = i
-                    NUM_NODES_Preemption = NUM_NEED_NODES - i
-        print(NUM_NODES_Preemption)
-        print(NUM_NODES_NodeStart)
-        print(dp[-1][NUM_NODES_Preemption])
-        #Preemption
-        if(NUM_NODES_Preemption != 0):
-            preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
-            preemptionJobs = PreemptionAlgorithm(urgentJob,Nodes,now,event,empty_node,preemptionJobs,preemptionNodes,result)
-        #NodeStart
-        if(NUM_NODES_NodeStart !=0):
-            NodeStart(NUM_NODES_NodeStart,NUM_SLEEP_NODES,NUM_NODES,urgentJob,now,empty_node,Nodes,event,startNodes)
-        #緊急ジョブの割り当て時刻の決定
-        finishtime = now + overheadTime
-        #緊急ジョブを割り当てるノードの予約
-        print(empty_node)
-        UrgentReserve(urgentJob,empty_node,Nodes,event,reservedNodes,finishtime)
-    return preemptionJobs
+        for i in range(NUM_NEED_NODES, len(dp[-1])):
+            if dp[-1][i] != 0:
+                NUM_NODES_Preemption = i
+                overheadTime = system.preemptionOverhead(dp[-1][i], system.writeBandwidth_mb)
+                break
+        NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
+    if NUM_NODES_Preemption != 0:
+        urgentJob.preemptionJobs = breakdp[-1][NUM_NODES_Preemption]
+    # idleノードが負の数になる可能性がある (nodeStartも！)
+    NUM_NODES_Idle = max(0, NUM_NODES_Idle)
+    NUM_NODES_NodeStart = max(0, NUM_NODES_NodeStart)
+    return NUM_NODES_Preemption, NUM_NODES_NodeStart, NUM_NODES_Idle, overheadTime

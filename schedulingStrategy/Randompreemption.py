@@ -7,6 +7,7 @@ def RandomPreemptionAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, NU
     NUM_NODES_NodeStart = 0
     # 中断もしくは起動に要する時間
     overheadTime = 0
+    totalmemory = 0
     use_nodes = urgentJob.nodes
     NUM_NEED_NODES = use_nodes - available_num_node
     # TODO:ランダムでジョブを選択
@@ -22,6 +23,8 @@ def RandomPreemptionAlgorithm(urgentJob, available_num_node, NUM_SLEEP_NODES, NU
         job = jobList[pop_list.pop(n)]
         urgentJob.preemptionJobs.append(job)
         NUM_NODES_Preemption += job.nodes
+        totalmemory += job.memory
+    overheadTime += system.preemptionOverhead(totalmemory, system.writeBandwidth_mb)
     NUM_NODES_Idle = use_nodes - (NUM_NODES_NodeStart + NUM_NODES_Preemption)
     # idleノードが負の数になる可能性がある
     NUM_NODES_Idle = max(0, NUM_NODES_Idle)
