@@ -1,7 +1,7 @@
 import os
 import copy
 from environment.global_var import *
-from log.log import LogNormalJob, LogNodes, LogResult
+from log.log import LogNormalJob, LogNodes, LogResult, VisualizationJob,VisualizationNode
 from basicFunction.normalJobAssignment import NormalJobAssignment
 from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
@@ -115,4 +115,8 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         deadlineratio = deadlineRatio(urgentJob_queue)
     else:
         deadlineratio = 0
-    return makespan, electricPowerResult, energyConsumption,deadlineratio
+    # 単位時刻あたりのジョブ状況
+    # VisualizationJob(result)
+    #単位時刻あたりのノード状況
+    VisualizationNode()
+    return makespan, electricPowerResult, energyConsumption, deadlineratio

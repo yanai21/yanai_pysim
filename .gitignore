@@ -1,4 +1,4 @@
 *.pyc
-__pycache__/
 log/**/*.txt
-* .pdf
+__pycache__/
+result/**/*.pdf
