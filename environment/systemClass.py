@@ -1,5 +1,5 @@
 class System:
-    def __init__(self, systemNodes, sleep_ratio):
+    def __init__(self, systemNodes, sleep_ratio, maxIdleTime):
         # node関係
         self.systemNodes = systemNodes
         self.sleepNodes = int(systemNodes * sleep_ratio)
@@ -13,6 +13,8 @@ class System:
         # 電力
         self.idleEnergy_w = 60
         self.executionEnergy_w = 210
+        # 最大アイドル時間
+        self.maxIdleTime = maxIdleTime
 
     def preemptionOverhead(self, memory, bandwidth):
         overhead = memory // bandwidth

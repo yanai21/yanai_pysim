@@ -1,7 +1,7 @@
 import os
 import copy
 from environment.global_var import *
-from log.log import LogNormalJob, LogNodes, LogResult, VisualizationJob, VisualizationNode,NodeResult
+from log.log import LogNormalJob, LogNodes, LogResult, VisualizationJob, VisualizationNode, NodeResult
 from basicFunction.normalJobAssignment import NormalJobAssignment
 from basicFunction.basicFunction import FinishJob
 from nodeClass import Node
@@ -37,16 +37,22 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # 現時刻
     now = 0
     normalJob_queue = copy.deepcopy(environment.normalJob_queue)
+    event = copy.deepcopy(environment.event)
     if UrgentFlag:
         urgentJob_queue = copy.deepcopy(environment.urgentJob_queue)
-        event = copy.deepcopy(environment.event)
     else:
         urgentJob_queue = []
-        event = {}
+        for key, list in event.items():
+            event_tmp = event[key]
+            for value in list:
+                if value.type == "urgent":
+                    event_tmp.remove(value)
+            if len(event_tmp) != 0:
+                event[key] = event_tmp
     # 結果確認
     # print("normalJob_queue:{}".format(normalJob_queue))
     # print("urgentJob:{}".format(urgentJob_queue))
-    # print("event:{}".format(event))
+    print("event:{}".format(event))
 
     LogNormalJob(name, normalJob_queue, urgentJob_queue)
 
@@ -68,7 +74,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         # 電力を計算
         electricPowerResult = ElectricPower(electricPowerResult, now, Nodes, environment.system)
         # ノード状況を保存
-        nodeResult = NodeResult(now,Nodes,nodeResult)
+        nodeResult = NodeResult(now, Nodes, nodeResult)
         for eventJob in reversed(eventJobs):
             # 割り当て前の緊急ジョブ
             if eventJob.type == "urgent" and eventJob.status == -1:
@@ -103,6 +109,8 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                         PreemptionRecoverFinish(eventJob, now, event)
                     else:
                         print("変なイベントが緊急ジョブに投入されている")
+            elif eventJob.type == "normal" and eventJob.status == -1:
+                normalJob_queue.append(eventJob)
             else:
                 FinishJob(now, eventJob, Nodes, result)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)
@@ -119,7 +127,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     else:
         deadlineratio = 0
     # 単位時刻あたりのジョブ状況
-    # VisualizationJob(result)
+    VisualizationJob(result)
     # 単位時刻あたりのノード状況
     VisualizationNode(nodeResult)
     return makespan, electricPowerResult, energyConsumption, deadlineratio

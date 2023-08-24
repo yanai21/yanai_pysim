@@ -1,5 +1,5 @@
 class NormalJob:
-    def __init__(self, id, nodes, etime, memory):
+    def __init__(self, id, nodes, etime, memory,occurrenceTime):
         self.type = "normal"
         self.id = id
         self.nodes = nodes
@@ -9,7 +9,7 @@ class NormalJob:
         self.endTime = 0
         self.runNode = []
         self.status = -1
-
+        self.occurrenceTime = occurrenceTime
 
 class UrgentJob:
     def __init__(self, id, nodes, etime, memory, occurrenceTime, deadlineTime):
