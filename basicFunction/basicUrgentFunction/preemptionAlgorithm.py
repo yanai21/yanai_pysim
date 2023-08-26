@@ -1,6 +1,5 @@
 import copy
-from basicFunction.basicFunction import JobPlacement
-from basicFunction.basicFunction import FinishJob
+from basicFunction.basicFunction import JobPlacement,FinishJob,DelEvent
 
 
 # DPの計算
@@ -68,17 +67,22 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result, system):
             urgentJob.totalPreemptionMemory += preemptionJob.memory
             # 結果の書き込み
             preemptionJob.status = 3
-            FinishJob(now, preemptionJob, Nodes, result)
+            FinishJob(now, preemptionJob, Nodes, result,event,system)
             # eventから中断対象を削除
             estimated_endTime = preemptionJob.startTime + preemptionJob.etime
+            # event = DelEvent(event,estimated_endTime,preemptionJob)
             event_tmp = event[estimated_endTime]
             event_tmp.remove(preemptionJob)
-            event[estimated_endTime] = event_tmp
+            if len(event_tmp) != 0:
+                event[estimated_endTime] = event_tmp
+            else:
+                event.pop(estimated_endTime)
             # 中断対象の残り時間を計測
             leftEtime = preemptionJob.etime - now
             preemptionJob.etime = leftEtime
             ## 緊急ジョブのrunNodeの追加
             for node in preemptionJob.runNode:
+                print("aaa{}".format(node.id))
                 if node.status == 0:
                     node.status = 21
                     urgentJob.runNode.append(node)

@@ -42,19 +42,19 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         urgentJob_queue = copy.deepcopy(environment.urgentJob_queue)
     else:
         urgentJob_queue = []
-        for key, list in event.items():
+        for key in list(event):
             event_tmp = event[key]
-            for value in list:
+            for value in event[key]:
                 if value.type == "urgent":
                     event_tmp.remove(value)
             if len(event_tmp) != 0:
                 event[key] = event_tmp
+            else:
+                event.pop(key)
     # 結果確認
     # print("normalJob_queue:{}".format(normalJob_queue))
     # print("urgentJob:{}".format(urgentJob_queue))
-    print("event:{}".format(event))
-
-    LogNormalJob(name, normalJob_queue, urgentJob_queue)
+    # print("event:{}".format(event))
 
     # 1回目
     NormalJobAssignment(now, event, Nodes, normalJob_queue)
@@ -76,26 +76,29 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         # ノード状況を保存
         nodeResult = NodeResult(now, Nodes, nodeResult)
         for eventJob in reversed(eventJobs):
+            # ノードのシャットダウン
+            if eventJob.type == "node":
+                # TODO:ノードシャットダウンイベントの追加
+                eventJob.status = -1
             # 割り当て前の緊急ジョブ
-            if eventJob.type == "urgent" and eventJob.status == -1:
+            elif eventJob.type == "urgent" and eventJob.status == -1:
                 UrgentJobAssignment(
                     Nodes, now, eventJob, event, normalJob_queue, environment.system, UrgentJobStrategy, result
                 )
-                # print(eventJob.event)
             # 実行前の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == 0:
                 for urgent_event in eventJob.event[now]:
                     if urgent_event == "NodeStartFinish":
                         NodeStartFinish(eventJob)
                     elif urgent_event == "urgentJobStart":
-                        UrgentJobPlacement(now, eventJob, event)
+                        UrgentJobPlacement(now, eventJob, event, environment.system)
                     elif urgent_event == "preemptionFinish":
                         PreemptionFinish(eventJob)
                     else:
                         print("変なイベントが緊急ジョブに投入されている")
             # 実行終了後の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == 1:
-                FinishJob(now, eventJob, Nodes, result)
+                FinishJob(now, eventJob, Nodes, result, event, environment.system)
                 # 中断を使ったかどうか
                 if len(eventJob.preemptionJobs) != 0:
                     PreemptionRecover(eventJob, event, now, environment.system)
@@ -112,7 +115,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
             elif eventJob.type == "normal" and eventJob.status == -1:
                 normalJob_queue.append(eventJob)
             else:
-                FinishJob(now, eventJob, Nodes, result)
+                FinishJob(now, eventJob, Nodes, result, event, environment.system)
         NormalJobAssignment(now, event, Nodes, normalJob_queue)
         LogNodes(name, now, Nodes)
     energyConsumption = EnergyConsumption(electricPowerResult)
@@ -126,8 +129,8 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         deadlineratio = deadlineRatio(urgentJob_queue)
     else:
         deadlineratio = 0
-    # 単位時刻あたりのジョブ状況
-    VisualizationJob(result)
-    # 単位時刻あたりのノード状況
-    VisualizationNode(nodeResult)
+    # # 単位時刻あたりのジョブ状況
+    # VisualizationJob(result)
+    # # 単位時刻あたりのノード状況
+    # VisualizationNode(nodeResult)
     return makespan, electricPowerResult, energyConsumption, deadlineratio
