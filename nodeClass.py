@@ -20,3 +20,23 @@ class Node:
     def deleteShutdownEvent(self, event):
         DelEvent(event, self.shutdownStartTime, self)
         self.shutdownStartTime = 0
+
+    # シャットダウン開始
+    def nodeShutdown(self, event, system, now):
+        if self.status == 0:
+            finishtime = now + system.nodeEndTime_s
+            self.status = -22
+        else:
+            print("ノード起動できません")
+            exit()
+        try:
+            event[finishtime].append(self)
+        except:
+            event[finishtime] = [self]
+    
+    def nodeShutdownFinish(self):
+        if self.status == -22:
+            self.status = -1
+        else:
+            print("ノードシャットダウンを終了できない")
+            exit()

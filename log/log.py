@@ -68,14 +68,31 @@ def VisualizationJob(result):
 
 def VisualizationNode(nodeResult):
     nodecolor = {-22: "g", -21: "g", -1: "w", 0: "k", 1: "y", 2: "k", 21: "r", 22: "r"}
+    node_labels = {
+        -22: "nodeshutdown",
+        -21: "nodestart",
+        -1: "shutdown",
+        0: "idle",
+        1: "run",
+        2: "reserved",
+        21: "preemption",
+        22: "recover",
+    }
+    legend_entries = []
     past = 0
     fig, ax = plt.subplots()
     while len(nodeResult) != 0:
         now = next(iter(nodeResult))
         Nodes = nodeResult.pop(now)
         for idx, node in enumerate(Nodes):
-            ax.barh(idx, width=(now - past), left=past, color=nodecolor[node])
+            if node_labels[node] not in legend_entries:  # 同じラベルのエントリが重複して追加されないようにする
+                legend_entries.append(node_labels[node])
+                ax.barh(idx, width=(now - past), left=past, color=nodecolor[node], label=node_labels[node])
+            else:
+                ax.barh(idx, width=(now - past), left=past, color=nodecolor[node])
         past = now
+    node
+    ax.legend(loc="upper right", bbox_to_anchor=(1.0, 1.0))
     plt.ylabel("Node")
     plt.title("node status per time")
     plt.tight_layout()

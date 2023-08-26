@@ -82,7 +82,6 @@ def PreemptionAlgorithm(urgentJob, Nodes, now, event, result, system):
             preemptionJob.etime = leftEtime
             ## 緊急ジョブのrunNodeの追加
             for node in preemptionJob.runNode:
-                print("aaa{}".format(node.id))
                 if node.status == 0:
                     node.status = 21
                     urgentJob.runNode.append(node)

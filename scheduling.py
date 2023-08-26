@@ -10,7 +10,7 @@ from basicFunction.basicUrgentFunction.preemptionAlgorithm import (
     PreemptionRecover,
     PreemptionRecoverFinish,
 )
-from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish, NodeShutdown, NodeShutdownFinish
+from basicFunction.basicUrgentFunction.nodeStartAlgorithm import NodeStartFinish
 from basicFunction.basicUrgentFunction.urgentJobPlacement import UrgentJobPlacement
 from basicFunction.basicUrgentFunction.urgentJobAssignment import UrgentJobAssignment
 from evaluation.evaluation import ElectricPower, Makespan, EnergyConsumption, deadlineRatio
@@ -78,8 +78,12 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         for eventJob in reversed(eventJobs):
             # ノードのシャットダウン
             if eventJob.type == "node":
-                # TODO:ノードシャットダウンイベントの追加
-                eventJob.status = -1
+                # ノードシャットダウン開始
+                if eventJob.status == 0:
+                    eventJob.nodeShutdown(event, environment.system, now)
+                # ノードシャットダウン終了
+                elif eventJob.status == -22:
+                    eventJob.nodeShutdownFinish()
             # 割り当て前の緊急ジョブ
             elif eventJob.type == "urgent" and eventJob.status == -1:
                 UrgentJobAssignment(
@@ -102,13 +106,9 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                 # 中断を使ったかどうか
                 if len(eventJob.preemptionJobs) != 0:
                     PreemptionRecover(eventJob, event, now, environment.system)
-                if len(eventJob.startNodes) != 0:
-                    NodeShutdown(eventJob, Nodes, event, now, environment.system)
             elif eventJob.type == "urgent" and eventJob.status == 2:
                 for urgent_event in eventJob.event[now]:
-                    if urgent_event == "NodeShutdownFinish":
-                        NodeShutdownFinish(eventJob)
-                    elif urgent_event == "preemptionRecoverFinish":
+                    if urgent_event == "preemptionRecoverFinish":
                         PreemptionRecoverFinish(eventJob, now, event)
                     else:
                         print("変なイベントが緊急ジョブに投入されている")
@@ -131,6 +131,6 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         deadlineratio = 0
     # # 単位時刻あたりのジョブ状況
     # VisualizationJob(result)
-    # # 単位時刻あたりのノード状況
-    # VisualizationNode(nodeResult)
+    # 単位時刻あたりのノード状況
+    VisualizationNode(nodeResult)
     return makespan, electricPowerResult, energyConsumption, deadlineratio
