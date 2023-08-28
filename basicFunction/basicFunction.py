@@ -47,6 +47,7 @@ def FinishJob(now, eventJob, Nodes, result, event, system):
         result.append([eventJob.id, eventJob.startTime, eventJob.endTime, runNodes, eventJob.status])
     else:
         print(eventJob.status)
+        print(eventJob)
         print("終了できないジョブです")
         exit()
 

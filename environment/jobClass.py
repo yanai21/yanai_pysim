@@ -20,8 +20,6 @@ class NormalJob(Job):
 class OndemandJob(Job):
     def __init__(self, id, nodes, etime, memory, occurrenceTime, deadlineTime):
         super().__init__(id, nodes, etime, memory, occurrenceTime)
-        # 共通
-        self.type = "ondemand"
         self.deadlineTime = deadlineTime
         self.totalPreemptionMemory = 0
         self.event = {}
@@ -38,4 +36,4 @@ class InteractiveJob(OndemandJob):
 class UrgentJob(OndemandJob):
     def __init__(self, id, nodes, etime, memory, occurrenceTime, deadlineTime):
         super().__init__(id, nodes, etime, memory, occurrenceTime, deadlineTime)
-        self.type == "urgent"
+        self.type = "urgent"

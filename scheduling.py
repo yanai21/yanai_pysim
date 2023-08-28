@@ -45,7 +45,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         for key in list(event):
             event_tmp = event[key]
             for value in event[key]:
-                if value.type == "urgent":
+                if value.type == "urgent" or value.type == "interactive":
                     event_tmp.remove(value)
             if len(event_tmp) != 0:
                 event[key] = event_tmp
