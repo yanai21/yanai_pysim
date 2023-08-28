@@ -1,4 +1,4 @@
-from environment.jobClass import NormalJob, UrgentJob
+from environment.jobClass import NormalJob, UrgentJob, InteractiveJob
 from random import randint
 import os
 
@@ -46,16 +46,20 @@ class Environment:
             for data in datas:
                 data = data.replace("\n", "")
                 joblist = data.split(",")
-                if joblist[0] == "id":
+                if joblist[0] == "type":
                     pass
                 else:
-                    id = int(joblist[0])
-                    nodes = int(joblist[1])
-                    etime = int(joblist[2])
-                    occurrenceTime = int(joblist[3])
-                    deadlineTime = int(joblist[4])
+                    type = joblist[0]
+                    id = int(joblist[1])
+                    nodes = int(joblist[2])
+                    etime = int(joblist[3])
+                    occurrenceTime = int(joblist[4])
+                    deadlineTime = int(joblist[5])
                     memory = self.system.nodeMemory_mb * nodes
-                    job_tmp = UrgentJob(id, nodes, etime, memory, occurrenceTime, deadlineTime)
+                    if type == "urgent":
+                        job_tmp = UrgentJob(id, nodes, etime, memory, occurrenceTime, deadlineTime)
+                    else:
+                        job_tmp = InteractiveJob(id, nodes, etime, memory, occurrenceTime, deadlineTime)
                     self.urgentJob_queue.append(job_tmp)
                     # 緊急ジョブの発生時刻をeventに追加
                     try:
