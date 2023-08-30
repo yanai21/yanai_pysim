@@ -13,18 +13,18 @@ environment = test1_environment
 # preemptionMakespan, preemptionElectricPowerResult, preemptionEnergyConsumption, preemptionDeadlineRatio = scheduling(
 #     "preemption", True, PreemptionPriorityAlgorithm, environment
 # )
-print("ノード起動優先")
-nodeStartMakespan, nodeStartElectricPowerResult, nodeStartEnergyConsumption, nodeStartDeadlineRatio = scheduling(
-    "nodeStart", True, NodeStartPriorityAlgorithm, environment
-)
+# print("ノード起動優先")
+# nodeStartMakespan, nodeStartElectricPowerResult, nodeStartEnergyConsumption, nodeStartDeadlineRatio = scheduling(
+#     "nodeStart", True, NodeStartPriorityAlgorithm, environment
+# )
 print("通常ジョブのみ")
 normalJobMakespan, normalJobElectricPowerResult, normalJobEnergyConsumption, normakJobDeadlineRatio = scheduling(
     "normalJob", False, NormalJobPlacement, environment
 )
-print("ランダム選択手法")
-randomMakespan, randomElectricPowerResult, randomEnergyConsumption, randomDeadlineRatio = scheduling(
-    "random", True, RandomPreemptionAlgorithm, environment
-)
+# print("ランダム選択手法")
+# randomMakespan, randomElectricPowerResult, randomEnergyConsumption, randomDeadlineRatio = scheduling(
+#     "random", True, RandomPreemptionAlgorithm, environment
+# )
 # print("提案手法")
 # proposedMakespan, proposedElectricPowerResult, proposedEnergyConsumption, proposedDeadlineRatio = scheduling(
 #     "proposed", True, ProposedAlgorithm, environment

@@ -21,7 +21,6 @@ def JobPlacement(now, empty_node, job, event, Nodes, popNum):
             exit()
         # start時刻の書き込み
         job.startTime = now
-
     try:
         event[finish_time].append(job)
     except:

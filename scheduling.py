@@ -24,7 +24,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
         os.remove("./log/{}/Nodes.txt".format(name))
     except:
         pass
-    global Nodes, now, event, result
+    global Nodes, now, event, result, wait_queue
     # ノード関係
     systemNodes = environment.system.systemNodes
     Nodes = [Node(id, 0) for id in range(systemNodes)]
@@ -37,6 +37,10 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # 現時刻
     now = 0
     normalJob_queue = copy.deepcopy(environment.normalJob_queue)
+    wait_queue = []
+    for job in normalJob_queue:
+        if job.occurrenceTime == 0:
+            wait_queue.append(job)
     event = copy.deepcopy(environment.event)
     if UrgentFlag:
         urgentJob_queue = copy.deepcopy(environment.urgentJob_queue)
@@ -57,7 +61,7 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
     # print("event:{}".format(event))
 
     # 1回目
-    NormalJobAssignment(now, event, Nodes, normalJob_queue)
+    NormalJobAssignment(now, event, Nodes, wait_queue)
     LogNodes(name, now, Nodes)
     # eventの並び替え
     event = sorted(event.items())
@@ -113,10 +117,10 @@ def scheduling(name, UrgentFlag, UrgentJobStrategy, environment):
                     else:
                         print("変なイベントが緊急ジョブに投入されている")
             elif eventJob.type == "normal" and eventJob.status == -1:
-                normalJob_queue.append(eventJob)
+                wait_queue.append(eventJob)
             else:
                 FinishJob(now, eventJob, Nodes, result, event, environment.system)
-        NormalJobAssignment(now, event, Nodes, normalJob_queue)
+        NormalJobAssignment(now, event, Nodes, wait_queue)
         LogNodes(name, now, Nodes)
     energyConsumption = EnergyConsumption(electricPowerResult)
     # for tmp in result:

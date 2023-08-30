@@ -7,7 +7,9 @@ class Environment:
     def __init__(self, system, folder, normalJob_file, urgentJob_file):
         self.system = system
         self.event = {}
+        # 通常ジョブを格納するもの
         self.normalJob_queue = []
+        # 緊急ジョブを格納しておくもの
         self.urgentJob_queue = []
         self.folder = folder
         self.normalJob_file = normalJob_file
@@ -17,7 +19,6 @@ class Environment:
 
     def read_NormalJob(self, folder, file):
         with open("environment/{}/data/normalJob/{}_normalJob.txt".format(folder, file)) as f:
-            self.normalJob_queue = []
             datas = f.readlines()
             for data in datas:
                 data = data.replace("\n", "")
@@ -31,9 +32,8 @@ class Environment:
                     memory = int(joblist[3])
                     occurrenceTime = int(joblist[4])
                     job_tmp = NormalJob(id, nodes, etime, memory, occurrenceTime)
-                    if occurrenceTime == 0:
-                        self.normalJob_queue.append(job_tmp)
-                    else:
+                    self.normalJob_queue.append(job_tmp)
+                    if occurrenceTime != 0:
                         try:
                             self.event[job_tmp.occurrenceTime].append(job_tmp)
                         except:
@@ -41,7 +41,6 @@ class Environment:
 
     def read_UrgentJob(self, folder, file):
         with open("environment/{}/data/urgentJob/{}_urgentJob.txt".format(folder, file)) as f:
-            self.urgentJob_queue = []
             datas = f.readlines()
             for data in datas:
                 data = data.replace("\n", "")
